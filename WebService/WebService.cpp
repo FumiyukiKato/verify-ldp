@@ -139,10 +139,13 @@ bool WebService::sendToIAS(string url,
 
     curl_easy_setopt( curl, CURLOPT_URL, url.c_str());
 
-    if (headers) {
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
-    }
+    string subscription_key_header = "Ocp-Apim-Subscription-Key: ";
+    subscription_key_header.append(Settings::primary_key);
+    headers = curl_slist_append(headers, subscription_key_header.c_str());
+
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
 
     ias_response_container->p_response = (char*) malloc(1);
     ias_response_container->size = 0;
@@ -177,9 +180,6 @@ bool WebService::getSigRL(string gid, string *sigrl) {
     ias_response_header_t response_header;
 
     struct curl_slist *headers = NULL;
-    string subscription_key_header = "Ocp-Apim-Subscription-Key: ";
-    subscription_key_header.append(Settings.primary_key);
-    headers = curl_slist_append(headers, subscription_key_header.c_str());
 
     string url = Settings::ias_url + Settings::api_version + "sigrl/" + gid;
 
@@ -209,9 +209,6 @@ bool WebService::verifyQuote(uint8_t *quote, uint8_t *pseManifest, uint8_t *nonc
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
-    string subscription_key_header = "Ocp-Apim-Subscription-Key: ";
-    subscription_key_header.append(Settings.primary_key);
-    headers = curl_slist_append(headers, subscription_key_header.c_str());
 
     string payload = encoded_quote;
     string url = Settings::ias_url + Settings::api_version + "report";
