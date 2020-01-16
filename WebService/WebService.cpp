@@ -1,6 +1,7 @@
 #include "WebService.h"
 #include "../GeneralSettings.h"
 
+
 WebService* WebService::instance = NULL;
 
 WebService::WebService() {}
@@ -175,9 +176,14 @@ bool WebService::getSigRL(string gid, string *sigrl) {
     ias_response_container_t ias_response_container;
     ias_response_header_t response_header;
 
-    string url = Settings::ias_url + "sigrl/" + gid;
+    struct curl_slist *headers = NULL;
+    string subscription_key_header = "Ocp-Apim-Subscription-Key: ";
+    subscription_key_header.append(Settings.primary_key);
+    headers = curl_slist_append(headers, subscription_key_header.c_str());
 
-    this->sendToIAS(url, IAS::sigrl, "", NULL, &ias_response_container, &response_header);
+    string url = Settings::ias_url + Settings::api_version + "sigrl/" + gid;
+
+    this->sendToIAS(url, IAS::sigrl, "", headers, &ias_response_container, &response_header);
 
     Log("\tResponse status is: %d" , response_header.response_status);
     Log("\tContent-Length: %d", response_header.content_length);
@@ -203,10 +209,13 @@ bool WebService::verifyQuote(uint8_t *quote, uint8_t *pseManifest, uint8_t *nonc
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
+    string subscription_key_header = "Ocp-Apim-Subscription-Key: ";
+    subscription_key_header.append(Settings.primary_key);
+    headers = curl_slist_append(headers, subscription_key_header.c_str());
 
     string payload = encoded_quote;
+    string url = Settings::ias_url + Settings::api_version + "report";
 
-    string url = Settings::ias_url + "report";
     this->sendToIAS(url, IAS::report, payload, headers, &ias_response_container, &response_header);
 
 
@@ -224,7 +233,6 @@ bool WebService::verifyQuote(uint8_t *quote, uint8_t *pseManifest, uint8_t *nonc
 
     return false;
 }
-
 
 
 
