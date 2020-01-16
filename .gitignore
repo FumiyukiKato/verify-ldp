@@ -1,0 +1,22 @@
+app
+.idea/
+.vscode/
+target
+**/*.rs.bk
+/build
+Cargo.lock
+
+*.o
+*.so
+*.p12
+*.pem
+*.crt
+*.key
+*.secret
+
+core
+isv_enclave_t.*
+
+# Exception
+!ServiceProvider/sample_libcrypto/libsample_libcrypto.so
+
