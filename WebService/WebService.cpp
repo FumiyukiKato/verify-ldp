@@ -29,11 +29,12 @@ void WebService::init() {
     if (curl) {
         Log("Curl initialized successfully");
 //		curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
-        curl_easy_setopt( curl, CURLOPT_SSLCERTTYPE, "PEM");
-        curl_easy_setopt( curl, CURLOPT_SSLCERT, Settings::ias_crt);
-        curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-        curl_easy_setopt( curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_easy_setopt( curl, CURLOPT_NOPROGRESS, 1L);
+        // curl_easy_setopt( curl, CURLOPT_SSLCERTTYPE, "PEM");
+        // curl_easy_setopt( curl, CURLOPT_SSLCERT, Settings::ias_crt);
+        // curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+        // curl_easy_setopt( curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        // curl_easy_setopt( curl, CURLOPT_NOPROGRESS, 1L);
+        curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
     } else
         Log("Curl init error", log::error);
 }
