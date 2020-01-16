@@ -19,3 +19,5 @@ isv_enclave_t.*
 
 # Exception
 !ServiceProvider/sample_libcrypto/libsample_libcrypto.so
+
+set.sh
