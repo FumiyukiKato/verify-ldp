@@ -35,6 +35,7 @@ void WebService::init() {
         // curl_easy_setopt( curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         // curl_easy_setopt( curl, CURLOPT_NOPROGRESS, 1L);
         curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     } else
         Log("Curl init error", log::error);
 }
@@ -146,7 +147,9 @@ bool WebService::sendToIAS(string url,
 
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    if (type == repo) {
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    }
 
     ias_response_container->p_response = (char*) malloc(1);
     ias_response_container->size = 0;
