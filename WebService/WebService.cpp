@@ -147,7 +147,7 @@ bool WebService::sendToIAS(string url,
 
 
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-    if (type == repo) {
+    if (type == report) {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
     }
 
