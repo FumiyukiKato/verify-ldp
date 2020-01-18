@@ -423,6 +423,7 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
 
         if (0 != ret) {
             ret = SP_IAS_FAILED;
+            Log("SP_IAS_FAIEDHH");
             break;
         }
 
@@ -504,12 +505,14 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
                                                 NULL,
                                                 0,
                                                 &p_att_result_msg->secret.payload_tag);
+            Log("sample rijndael128 ret: %s", ret);
         }
 
     } while(0);
 
     if (ret) {
         SafeFree(p_att_result_msg_full);
+        Log("Safe free");
         return -1;
     } else {
         att_msg->set_size(att_result_msg_size);
