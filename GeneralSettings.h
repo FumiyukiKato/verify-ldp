@@ -13,7 +13,7 @@ namespace Settings {
     static string server_key    = std::getenv("SERVER_KEY"); // private key for the HTTPS connection
 
     static string spid          = std::getenv("RA_SPID"); // SPID provided by Intel after registration for the IAS service
-    static const char *ias_crt  = std::getenv("CA"); // location of the certificate send to Intel when registring for the IAS
+    static const char *ias_crt  = std::getenv("CA"); // location of a trusted Attestation Report Signing CA Certificate
     static string ias_url       = "https://api.trustedservices.intel.com/sgx/dev"; // development, for production can use "https://api.trustedservices.intel.com/sgx";
     static string api_version   = "/attestation/v3/";
 

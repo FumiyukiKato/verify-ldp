@@ -18,6 +18,8 @@
 // must have a unique SP public key. Delivery of the SP public key is
 // determined by the ISV. The TKE SIGMA protocl expects an Elliptical Curve key
 // based on NIST P-256
+// The Service Provider's public key should be hardcoded into the enclave. This, combined with enclave signing, ensures that the key cannot be changed by end users so that the enclave can only communicate with the intended remote service.
+// https://software.intel.com/en-us/articles/code-sample-intel-software-guard-extensions-remote-attestation-end-to-end-example
 static const sgx_ec256_public_t g_sp_pub_key = {
     {
         0x72, 0x12, 0x8a, 0x7a, 0x17, 0x52, 0x6e, 0xbf,

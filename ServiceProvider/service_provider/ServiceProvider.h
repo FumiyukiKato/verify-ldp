@@ -27,6 +27,7 @@ using namespace std;
 #define DH_SHARED_KEY_LEN 32
 #define SAMPLE_SP_IV_SIZE 12
 
+#define ADMITTED_EXTENDED_GID 0
 
 enum sp_ra_msg_status_t {
     SP_OK,

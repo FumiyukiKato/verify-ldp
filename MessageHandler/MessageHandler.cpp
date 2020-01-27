@@ -309,7 +309,6 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                                 (uint8_t*)&p_att_result_msg_body->mac,
                                 sizeof(sgx_mac_t));
 
-
     if ((SGX_SUCCESS != ret) || (SGX_SUCCESS != status)) {
         Log("Error: INTEGRITY FAILED - attestation result message MK based cmac failed", log::error);
         return "";
@@ -326,14 +325,15 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                                  p_att_result_msg_body->secret.payload_tag,
                                  MAX_VERIFICATION_RESULT,
                                  NULL);
+	Log("verify2!");
 
         SafeFree(p_att_result_msg_full);
 
         if (SGX_SUCCESS != ret) {
-            Log("Error, attestation result message secret using SK based AESGCM failed", log::error);
+            Log("Error, attestation result message secret using SK based AESGCM failed1", log::error);
             print_error_message(ret);
         } else if (SGX_SUCCESS != status) {
-            Log("Error, attestation result message secret using SK based AESGCM failed", log::error);
+            Log("Error, attestation result message secret using SK based AESGCM failed2", log::error);
             print_error_message(status);
         } else {
             Log("Send attestation okay");
