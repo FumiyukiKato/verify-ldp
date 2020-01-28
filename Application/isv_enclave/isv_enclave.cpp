@@ -259,9 +259,9 @@ sgx_status_t verify_secret_data (
     uint32_t secret_size,
     uint8_t *p_gcm_mac,
     uint32_t max_verification_length,
-    uint8_t *p_ret) {
+    uint8_t *p_ret,
+    sgx_ec_key_128bit_t *sk_key) {
     sgx_status_t ret = SGX_SUCCESS;
-    sgx_ec_key_128bit_t sk_key;
 
     do {
         ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, &sk_key);

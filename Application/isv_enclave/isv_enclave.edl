@@ -20,7 +20,8 @@ enclave {
 												uint32_t secret_size,
 												[in,count=16] uint8_t* gcm_mac,
 												uint32_t max_verification_length,
-												[out, count=16] uint8_t *p_ret);
+												[out, count=16] uint8_t *p_ret,
+                                                [out] sgx_ec_key_128bit_t *sk_key);
     };
 
 };
