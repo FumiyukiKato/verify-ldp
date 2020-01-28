@@ -59,6 +59,7 @@ int RemoveFile(string filePath);
 string Base64encode(const string val);
 string Base64decode(const string val);
 string Base64encodeUint8(uint8_t *val, uint32_t len);
+void print_hexstring(FILE *fp, const void *src, size_t len);
 
 #endif
 

@@ -1,6 +1,7 @@
 #include "ServiceProvider.h"
 #include "sample_libcrypto.h"
 #include "../GeneralSettings.h"
+#include "UtilityFunctions.h"
 
 // This is the private EC key of SP, the corresponding public EC key is
 // hard coded in isv_enclave. It is based on NIST P-256 curve.
@@ -147,6 +148,8 @@ int ServiceProvider::sp_ra_proc_msg1_req(Messages::MessageMSG1 msg1, Messages::M
             ret = SP_INTERNAL_ERROR;
             break;
         }
+        Log("MK=");
+        print_hexstring(g_sp_db.sk_key, sizeof(g_sp_db.mk_key));
 
         derive_ret = derive_key(&dh_key, SAMPLE_DERIVE_KEY_SK, &g_sp_db.sk_key);
         if (derive_ret != true) {
@@ -154,6 +157,8 @@ int ServiceProvider::sp_ra_proc_msg1_req(Messages::MessageMSG1 msg1, Messages::M
             ret = SP_INTERNAL_ERROR;
             break;
         }
+        Log("SK=");
+        print_hexstring(g_sp_db.sk_key, sizeof(g_sp_db.sk_key));
 
         derive_ret = derive_key(&dh_key, SAMPLE_DERIVE_KEY_VK, &g_sp_db.vk_key);
         if (derive_ret != true) {

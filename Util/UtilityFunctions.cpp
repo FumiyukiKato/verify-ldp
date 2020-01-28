@@ -289,7 +289,14 @@ string Base64encodeUint8(uint8_t *val, uint32_t len) {
     return base64_encode(val, len);
 }
 
-
+void print_hexstring (const void *vsrc, size_t len)
+{
+	const unsigned char *sp= (const unsigned char *) vsrc;
+	size_t i;
+	for(i= 0; i< len; ++i) {
+		Log("%02x", sp[i]);
+	}
+}
 
 
 
