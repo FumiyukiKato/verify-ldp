@@ -318,6 +318,7 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         Log("Error, attestation mac result message MK based cmac failed", log::error);
     } else {
         Log("status = %x", status, log::error);
+        Log("MAC: %u%u", p_att_result_msg_body->secret.payload_tag[0], p_att_result_msg_body->secret.payload_tag[14]);
         sgx_ec_key_128bit_t sk_key;
         ret = verify_secret_data(this->enclave->getID(),
                                  &status,

@@ -514,6 +514,7 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
                                                 0,
                                                 &p_att_result_msg->secret.payload_tag);
             Log("sample rijndael128 ret: %s", ret);
+            Log("MAC: %u%u", p_att_result_msg_body->secret.payload_tag[0], p_att_result_msg_body->secret.payload_tag[14]);
         }
 
     } while(0);
