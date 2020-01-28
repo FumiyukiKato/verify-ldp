@@ -264,7 +264,7 @@ sgx_status_t verify_secret_data (
     sgx_status_t ret = SGX_SUCCESS;
 
     do {
-        ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, &sk_key);
+        ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, sk_key);
         if (SGX_SUCCESS != ret) {
             break;
         }
@@ -272,7 +272,7 @@ sgx_status_t verify_secret_data (
         uint8_t *decrypted = (uint8_t*) malloc(sizeof(uint8_t) * secret_size);
         uint8_t aes_gcm_iv[12] = {0};
 
-        ret = sgx_rijndael128GCM_decrypt(&sk_key,
+        ret = sgx_rijndael128GCM_decrypt(sk_key,
                                          p_secret,
                                          secret_size,
                                          decrypted,

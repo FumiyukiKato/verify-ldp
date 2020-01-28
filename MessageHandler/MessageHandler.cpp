@@ -328,7 +328,7 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                                  NULL,
                                  &sk_key);
 	Log("SK=");
-    print_hexstring(sk_key);
+	print_hexstring(sk_key, sizeof(sk_key));
 
         SafeFree(p_att_result_msg_full);
 
