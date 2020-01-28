@@ -317,6 +317,7 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
     if (0 != p_att_result_msg_full->status[0] || 0 != p_att_result_msg_full->status[1]) {
         Log("Error, attestation mac result message MK based cmac failed", log::error);
     } else {
+        Log("status = %x", status, log::error);
         sgx_ec_key_128bit_t sk_key;
         ret = verify_secret_data(this->enclave->getID(),
                                  &status,
@@ -327,8 +328,9 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                                  MAX_VERIFICATION_RESULT,
                                  NULL,
                                  &sk_key);
-	Log("SK=");
-    print_hexstring(sk_key);
+        Log("status = %x", status, log::error);
+	    Log("SK=");
+        print_hexstring(sk_key);
 
         SafeFree(p_att_result_msg_full);
 
