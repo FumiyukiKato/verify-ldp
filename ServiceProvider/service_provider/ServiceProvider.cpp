@@ -497,8 +497,8 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0};
         p_att_result_msg->secret.payload_size = MAX_VERIFICATION_RESULT;
 
-        Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
-        Log("attestation_report.status: %d", attestation_report.status);
+        // Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
+        // Log("attestation_report.status: %d", attestation_report.status);
         if ((IAS_QUOTE_OK == attestation_report.status) &&
                 (IAS_PSE_OK == attestation_report.pse_status) &&
                 (isv_policy_passed == true)) {
@@ -515,8 +515,8 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
                                                 NULL,
                                                 0,
                                                 &p_att_result_msg->secret.payload_tag);
-            Log("sample rijndael128 ret: %s", ret);
-            Log("MAC: %u%u", p_att_result_msg->secret.payload_tag[0], p_att_result_msg->secret.payload_tag[14]);
+            // Log("sample rijndael128 ret: %s", ret);
+            // Log("MAC: %u%u", p_att_result_msg->secret.payload_tag[0], p_att_result_msg->secret.payload_tag[14]);
         }
 
     } while(0);

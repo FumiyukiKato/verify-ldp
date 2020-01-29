@@ -314,7 +314,7 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         return "";
     }
 
-    Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
+    // Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
 
     if (0 != p_att_result_msg_full->status[0] || 0 != p_att_result_msg_full->status[1]) {
         Log("Error, attestation mac result message MK based cmac failed", log::error);
@@ -332,10 +332,10 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                                  NULL,
                                  &sk_key);
 
-	Log("status = %x", status, log::error);
-	
-	Log("SK=");
-	print_hexstring(sk_key, sizeof(sk_key));
+	// Log("status = %x", status, log::error);
+
+	// Log("SK=");
+	// print_hexstring(sk_key, sizeof(sk_key));
 
 
         SafeFree(p_att_result_msg_full);

@@ -88,8 +88,8 @@ int ias_verify_attestation_evidence(
     string timestamp, version, epidPseudonym, isvEnclaveQuoteStatus;
 
     for (auto x : result) {
-        Log("x.first: %s", x.first);
-        Log("x.second: %s", x.second);
+        // Log("x.first: %s", x.first);
+        // Log("x.second: %s", x.second);
         if (x.first == "id") {
             report_id = x.second;
         } else if (x.first == "timestamp") {
