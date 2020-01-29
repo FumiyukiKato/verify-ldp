@@ -55,11 +55,13 @@ vector<pair<string, string>> WebService::parseJSONfromIAS(string json) {
 
     string id = root.get("id", "UTF-8" ).asString();
     string timestamp = root.get("timestamp", "UTF-8" ).asString();
+    string version = root.get("version", "UTF-8" ).asString();
     string epidPseudonym = root.get("epidPseudonym", "UTF-8" ).asString();
     string isvEnclaveQuoteStatus = root.get("isvEnclaveQuoteStatus", "UTF-8" ).asString();
 
     values.push_back({"id", id});
     values.push_back({"timestamp", timestamp});
+    values.push_back({"version", version});
     values.push_back({"epidPseudonym", epidPseudonym});
     values.push_back({"isvEnclaveQuoteStatus", isvEnclaveQuoteStatus});
 

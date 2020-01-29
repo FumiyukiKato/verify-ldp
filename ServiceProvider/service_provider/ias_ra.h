@@ -17,6 +17,7 @@ typedef enum {
     IAS_QUOTE_KEY_REVOKED,
     IAS_QUOTE_SIGRL_VERSION_MISMATCH,
     IAS_QUOTE_GROUP_OUT_OF_DATE,
+    IAS_CONFIGURATION_NEEDED,
 } ias_quote_status_t;
 
 // These status should align with the definition in IAS API spec(rev 0.6)

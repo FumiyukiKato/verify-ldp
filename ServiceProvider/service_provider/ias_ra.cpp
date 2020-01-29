@@ -85,15 +85,19 @@ int ias_verify_attestation_evidence(
     string report_id;
     uintmax_t test;
     ias_quote_status_t quoteStatus;
-    string timestamp, epidPseudonym, isvEnclaveQuoteStatus;
+    string timestamp, version, epidPseudonym, isvEnclaveQuoteStatus;
 
     for (auto x : result) {
+        Log("x.first: %s", x.first);
+        Log("x.second: %s", x.second);
         if (x.first == "id") {
             report_id = x.second;
         } else if (x.first == "timestamp") {
             timestamp = x.second;
         } else if (x.first == "epidPseudonym") {
             epidPseudonym = x.second;
+        } else if (x.first == "version") {
+            version = x.second;
         } else if (x.first == "isvEnclaveQuoteStatus") {
             if (x.second == "OK")
                 quoteStatus = IAS_QUOTE_OK;
@@ -109,7 +113,15 @@ int ias_verify_attestation_evidence(
                 quoteStatus = IAS_QUOTE_SIGRL_VERSION_MISMATCH;
             else if (x.second == "GROUP_OUT_OF_DATE")
                 quoteStatus = IAS_QUOTE_GROUP_OUT_OF_DATE;
+            else if (x.second == "CONFIGURATION_NEEDED")
+                quoteStatus = IAS_CONFIGURATION_NEEDED;
         }
+    }
+
+    // https://api.trustedservices.intel.com/documents/sgx-attestation-api-spec.pdf
+    // Any advisoryId exists but, here is ignored
+    if (quoteStatus == IAS_CONFIGURATION_NEEDED) {
+        quoteStatus = IAS_QUOTE_OK;
     }
 
     report_id.copy(p_attestation_verification_report->id, report_id.size());
