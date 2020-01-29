@@ -314,6 +314,8 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         return "";
     }
 
+    Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
+
     if (0 != p_att_result_msg_full->status[0] || 0 != p_att_result_msg_full->status[1]) {
         Log("Error, attestation mac result message MK based cmac failed", log::error);
     } else {
