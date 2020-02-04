@@ -299,6 +299,29 @@ sgx_status_t verify_secret_data (
     return ret;
 }
 
+int random_response_mechanism(double epsilon, uint8_t *data) {
+    double distortion = exp(epsilon) / (1+ exp(epsilon));
+    uint8_t random = 0;
+
+    // generate random securely with sgx_read_rand
+    sgx_status_t status = sgx_read_rand((unsigned char *) &random, 1);
+    if(status != SGX_SUCCESS) {
+        return -1;
+    }
+    double regularized_random = double(random) / UINT8_MAX; // reglarize
+
+    if(regularized_random > distortion) {
+        if (*data == 0) {
+            *data = 1;
+        } else {
+            *data = 0;
+        }
+    }
+
+    return 1;
+}
+
+
 sgx_status_t random_response(
     sgx_ra_context_t context,
     uint8_t *p_secret,
@@ -345,26 +368,3 @@ sgx_status_t random_response(
 
     return ret;
 }
-
-int random_response_mechanism(double epsilon, uint8_t *data) {
-    double distortion = exp(epsilon) / (1+ exp(epsilon));
-    uint8_t random = 0;
-
-    sgx_status_t status = sgx_read_rand((unsigned char *) &random, 1);
-    if(status != SGX_SUCCESS) {
-        return -1;
-    }
-    double regularized_random = double(random) / UINT8_MAX; // reglarize
-
-    if(regularized_random > distortion) {
-        if (*data == 0) {
-            *data = 1;
-        } else {
-            *data = 0;
-        }
-    }
-
-    return 1;
-}
-
-

@@ -109,7 +109,7 @@ string VerificationManager::handleAppAttOk(Messages::InitialMessage msg) {
     Log("Sending Private Data");
 
     Messages::SecretMessage sec_msg;
-    pri_msg.set_type(RANDOM_RESPONSE);
+    sec_msg.set_type(RANDOM_RESPONSE);
 
     int ret = this->sp->proc_private_data(msg, &sec_msg);
     if (ret == -1) {
