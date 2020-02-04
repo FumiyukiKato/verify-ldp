@@ -22,6 +22,11 @@ enclave {
 												uint32_t max_verification_length,
 												[out, count=16] uint8_t *p_ret,
                                                 [out] sgx_ec_key_128bit_t *sk_key);
+
+		public sgx_status_t random_response([in, size=message_len]const char *message,
+			                        size_t message_len,
+			                        double epsilon,
+			                        [in, out] double *data);
     };
 
 };

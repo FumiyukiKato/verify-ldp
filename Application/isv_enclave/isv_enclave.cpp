@@ -6,6 +6,8 @@
 #include "sgx_tkey_exchange.h"
 #include "sgx_tcrypto.h"
 #include "string.h"
+#include <math.h>
+#include <stdint.h>
 
 // This is the public EC key of the SP. The corresponding private EC key is
 // used by the SP to sign data used in the remote attestation SIGMA protocol
@@ -297,5 +299,31 @@ sgx_status_t verify_secret_data (
     return ret;
 }
 
+sgx_status_t random_response(
+    const char *message, size_t message_len, double epsilon, double *data) {
+    sgx_status_t ret = SGX_SUCCESS;
+	int status = random_response_mechanism(epsilon, data);
+	if (status != 1) {
+	  ret = SGX_ERROR_UNEXPECTED;
+	}
+	return ret;
+}
+
+int random_response_mechanism(double epsilon, double *data) {
+    double distortion = exp(epsilon) / (1+ exp(epsilon));
+    uint8_t random = 0;
+
+    sgx_status_t status = sgx_read_rand((unsigned char *) &random, 1);
+    if(status != SGX_SUCCESS) {
+        return -1;
+    }
+    double regularized_random = double(random) / UINT8_MAX; // reglarize
+
+    if(regularized_random > distortion) {
+        *data = *data * (double)(-1);
+    }
+
+    return 1;
+}
 
 

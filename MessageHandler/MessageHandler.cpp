@@ -318,44 +318,63 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
 
     if (0 != p_att_result_msg_full->status[0] || 0 != p_att_result_msg_full->status[1]) {
         Log("Error, attestation mac result message MK based cmac failed", log::error);
-    } else {
-        Log("status = %x", status, log::error);
-        Log("MAC: %u%u", p_att_result_msg_body->secret.payload_tag[0], p_att_result_msg_body->secret.payload_tag[14]);
-        sgx_ec_key_128bit_t sk_key;
-        ret = verify_secret_data(this->enclave->getID(),
-                                 &status,
-                                 this->enclave->getContext(),
-                                 p_att_result_msg_body->secret.payload,
-                                 p_att_result_msg_body->secret.payload_size,
-                                 p_att_result_msg_body->secret.payload_tag,
-                                 MAX_VERIFICATION_RESULT,
-                                 NULL,
-                                 &sk_key);
-
-	// Log("status = %x", status, log::error);
-
-	// Log("SK=");
-	// print_hexstring(sk_key, sizeof(sk_key));
-
-
-        SafeFree(p_att_result_msg_full);
-
-        if (SGX_SUCCESS != ret) {
-            Log("Error, attestation result message secret using SK based AESGCM failed1", log::error);
-            print_error_message(ret);
-        } else if (SGX_SUCCESS != status) {
-            Log("Error, attestation result message secret using SK based AESGCM failed2", log::error);
-            print_error_message(status);
-        } else {
-            Log("Send attestation okay");
-
-            Messages::InitialMessage msg;
-            msg.set_type(RA_APP_ATT_OK);
-            msg.set_size(0);
-
-            return nm->serialize(msg);
-        }
+        return "";
     }
+
+    Log("status = %x", status, log::error);
+    Log("MAC: %u%u", p_att_result_msg_body->secret.payload_tag[0], p_att_result_msg_body->secret.payload_tag[14]);
+    sgx_ec_key_128bit_t sk_key;
+    ret = verify_secret_data(this->enclave->getID(),
+                                &status,
+                                this->enclave->getContext(),
+                                p_att_result_msg_body->secret.payload,
+                                p_att_result_msg_body->secret.payload_size,
+                                p_att_result_msg_body->secret.payload_tag,
+                                MAX_VERIFICATION_RESULT,
+                                NULL,
+                                &sk_key);
+
+    // Log("status = %x", status, log::error);
+
+    // Log("SK=");
+    // print_hexstring(sk_key, sizeof(sk_key));
+
+    SafeFree(p_att_result_msg_full);
+
+    if (SGX_SUCCESS != ret) {
+        Log("Error, attestation result message secret using SK based AESGCM failed1", log::error);
+        print_error_message(ret);
+        return "";
+    } else if (SGX_SUCCESS != status) {
+        Log("Error, attestation result message secret using SK based AESGCM failed2", log::error);
+        print_error_message(status);
+        return "";
+    } else {
+        Log("Send attestation okay");
+    }
+
+    /* Mechanism */
+    double epsilon = 1.0;
+	double data = 4.0;
+	ret = random_response(global_eid, &status,
+					        message, message_len, epsilon, &data);
+    if (SGX_SUCCESS != ret) {
+        Log("random_response is failed", log::error);
+        print_error_message(ret);
+        return "";
+    } else if (SGX_SUCCESS != status) {
+        Log("random_response is failed", log::error);
+        print_error_message(status);
+        return "";
+    } else {
+        Log("Send attestation okay");
+    }
+
+    Messages::InitialMessage msg;
+    msg.set_type(RA_APP_ATT_OK);
+    msg.set_size(0);
+
+    return nm->serialize(msg);
 
     SafeFree(p_att_result_msg_full);
 
