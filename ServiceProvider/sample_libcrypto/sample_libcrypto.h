@@ -102,7 +102,7 @@ typedef uint8_t sample_aes_ctr_128bit_key_t[SAMPLE_AESCTR_KEY_SIZE];
 #ifdef __cplusplus
     #define EXTERN_C extern "C"
 #else
-    #define EXTERN_C 
+    #define EXTERN_C
 #endif
 
     #define SAMPLE_LIBCRYPTO_API EXTERN_C

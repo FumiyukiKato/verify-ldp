@@ -291,8 +291,6 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     private_data_msg_t *p_private_data_msg = NULL;
 
     int total_size = msg.size();
-    p_private_data_msg = (p_private_data_msg*) malloc(total_size);
-
     memset(p_private_data_msg, 0, total_size);
 
     p_private_data_msg->secret.payload_size = msg.result_size();
@@ -304,10 +302,10 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
         p_private_data_msg->secret.payload_tag[i] = msg.payload_tag(i);
 
     for (int i=0; i<msg.result_size(); i++) {
-        p_private_data_msg->secret.payload[i] = (uint8_t)msg.payload(i);
+        p_private_data_msg->secret.payload[i] = (uint8_t)msg.encrypted_content(i);
     }
 
-    p_private_data_msg->open_data = msg.privacy_parameter();
+    p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
 
     *pp_sec_msg = p_private_data_msg;
 }
@@ -365,11 +363,11 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         Log("Send attestation okay");
     }
 
-    Messages::InitialMessage msg;
-    msg.set_type(RA_APP_ATT_OK);
-    msg.set_size(0);
+    Messages::InitialMessage ret_msg;
+    ret_msg.set_type(RA_APP_ATT_OK);
+    ret_msg.set_size(0);
 
-    return nm->serialize(msg);
+    return nm->serialize(ret_msg);
 }
 
 string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
@@ -411,13 +409,13 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
 
     // Get data
     Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
-    Log("Client noised data is %u", *response_data);
+    Log("Client noised data is %u", response_data);
 
-    Messages::InitialMessage msg;
-    msg.set_type(RANDOM_RESPONSE_OK);
-    msg.set_size(0);
+    Messages::InitialMessage ret_msg;
+    ret_msg.set_type(RANDOM_RESPONSE_OK);
+    ret_msg.set_size(0);
 
-    return nm->serialize(msg);
+    return nm->serialize(ret_msg);
 }
 
 

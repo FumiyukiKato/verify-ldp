@@ -597,12 +597,14 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         p_private_data_msg->open_data    = sp_open_data;
 
         Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
-        Log("Client raw data is %u", p_private_data_msg->open_data);
+        Log("Client raw data is %u", p_private_data_msg->private_data.data);
 
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
 
-
+        // in AESGCM output size = input size?
+        // https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode/26787
+        p_private_data_msg->secret.payload_size = sizeof(p_private_data_msg->private_data.data);
         ret = sample_rijndael128GCM_encrypt(&g_sp_db.sk_key, // p_key
                                             (const uint8_t*)&p_private_data_msg->private_data.data, // p_src
                                             p_private_data_msg->secret.payload_size, // p_len
@@ -611,14 +613,13 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
                                             SAMPLE_SP_IV_SIZE, // iv_len
                                             NULL, // p_add
                                             0, //add_len
-                                            &p_private_data_msg->secret.payload_tag); // p_out_mac 
+                                            &p_private_data_msg->secret.payload_tag); // p_out_mac
 
-        if (SAMPLE_SUCCESS != sample_ret) {
+        if (SAMPLE_SUCCESS != ret) {
             Log("Error, encryption fail", log::error);
             ret = SP_INTERNAL_ERROR;
             break;
         }
-        p_private_data_msg->secret.payload_size = sizeof(p_private_data_msg->secret.payload);
 
     } while(0);
 

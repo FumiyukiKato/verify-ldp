@@ -317,8 +317,6 @@ sgx_status_t random_response(
             break;
         }
 
-        // in AESGCM output size = input size?
-        // https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode/26787
         uint8_t *decrypted = (uint8_t*) malloc(sizeof(uint8_t) * secret_size);
         uint8_t aes_gcm_iv[12] = {0};
 
