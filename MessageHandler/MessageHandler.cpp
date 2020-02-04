@@ -307,6 +307,8 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
         p_private_data_msg->secret.payload[i] = (uint8_t)msg.payload(i);
     }
 
+    p_private_data_msg->open_data = msg.privacy_parameter();
+
     *pp_sec_msg = p_private_data_msg;
 }
 

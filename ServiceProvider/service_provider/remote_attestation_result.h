@@ -67,7 +67,12 @@ typedef struct sp_private_data_t {
     uint8_t data;
 } sp_private_data_t;
 
+typedef struct sp_open_data_t {
+    double privacy_parameter;
+} sp_open_data_t;
+
 typedef struct private_data_msg_t {
+    sp_open_data_t     open_data;
     sp_private_data_t  private_data;
     sp_aes_gcm_data_t  secret;
 } private_data_msg_t;

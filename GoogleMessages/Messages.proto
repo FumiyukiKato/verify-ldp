@@ -72,6 +72,7 @@ message SecretMessage {
 	optional uint32 result_size       = 4;
 	repeated uint32 reserved          = 5 [packed=true];
 	repeated uint32 payload_tag       = 6 [packed=true];
+	optional double privacy_parameter = 7;
 }
 
 

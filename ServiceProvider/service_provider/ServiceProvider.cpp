@@ -574,18 +574,27 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
     private_data_msg_t *p_private_data_msg = NULL;
     uint32_t private_data_msg_size;
     sp_private_data_t sp_private_data;
+    sp_open_data_t sp_open_data;
     memset(&sp_private_data, 0, sizeof(sp_private_data_t));
 
     // read private data from file
-    uint8_t *data_buf;
-    ReadFileToBuffer(Settings::client_private_data_path, &data_buf);
-    sp_private_data.data = data_buf[0];
+    char *data_buf_char;
+    ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
+    uint8_t data_buf_uint = stoi(string(data_buf_char));
+    sp_private_data.data = data_buf_uint;
+
+    // read privacy parameter from file
+    char *privacy_buf_char;
+    ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
+    double privacy_buf_uint = stod(string(privacy_buf_char));
+    sp_open_data.privacy_parameter = privacy_buf_uint;
 
     do {
         // Respond the client with the results of the attestation.
         private_data_msg_size = sizeof(private_data_msg_t);
 
         p_private_data_msg->private_data = sp_private_data;
+        p_private_data_msg->open_data    = sp_open_data;
 
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
@@ -626,6 +635,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         // mac of aesgcm
         for (int i=0; i<16; i++)
             sec_msg->add_payload_tag(p_private_data_msg->secret.payload_tag[i]);
+
+        // priavacy parameter to be opened
+        sec_msg->set_privacy_parameter(p_private_data_msg->open_data.privacy_parameter);
     }
 
     return ret;

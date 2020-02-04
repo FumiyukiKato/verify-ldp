@@ -21,6 +21,7 @@ namespace Settings {
     static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 
     static string client_private_data_path = "private.dat";
+    static string client_privacy_path      = "privacy.dat";
 }
 
 #endif
