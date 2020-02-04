@@ -31,6 +31,7 @@ private:
     string handleMSG3(Messages::MessageMSG3 msg);
     string createInitMsg(int type, string msg);
     string handleAppAttOk(Messages::InitialMessage msg);
+    string handleRROk(Messages::InitialMessage msg);
 
 private:
     static VerificationManager* instance;
