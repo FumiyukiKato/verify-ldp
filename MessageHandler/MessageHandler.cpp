@@ -312,65 +312,6 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     *pp_sec_msg = p_private_data_msg;
 }
 
-string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
-    Log("Received secret data");
-
-    private_data_msg_t *p_private_data_msg = NULL;
-    this->assembleSecretMessage(msg, &p_private_data_msg);
-
-    sgx_status_t status;
-    sgx_status_t ret;
-
-    sgx_ec_key_128bit_t sk_key;
-    ret = verify_secret_data(this->enclave->getID(),
-                                &status,
-                                this->enclave->getContext(),
-                                p_private_data_msg->secret.payload, // cipher text
-                                p_private_data_msg->secret.payload_size, // length of text to be decrypted
-                                p_private_data_msg->secret.payload_tag, // mac
-                                MAX_VERIFICATION_RESULT,
-                                NULL,
-                                &sk_key);
-
-    if (SGX_SUCCESS != ret) {
-        Log("Error, attestation result message secret using SK based AESGCM failed1", log::error);
-        print_error_message(ret);
-        return "";
-    } else if (SGX_SUCCESS != status) {
-        Log("Error, attestation result message secret using SK based AESGCM failed2", log::error);
-        print_error_message(status);
-        return "";
-    } else {
-        Log("Send attestation okay");
-    }
-
-    SafeFree(p_private_data_msg);
-
-    /* Mechanism */
-    double epsilon = 1.0;
-	double data = 4.0;
-	ret = random_response(global_eid, &status,
-					        message, message_len, epsilon, &data);
-    if (SGX_SUCCESS != ret) {
-        Log("random_response is failed", log::error);
-        print_error_message(ret);
-        return "";
-    } else if (SGX_SUCCESS != status) {
-        Log("random_response is failed", log::error);
-        print_error_message(status);
-        return "";
-    } else {
-        Log("Send attestation okay");
-    }
-
-    Messages::InitialMessage msg;
-    msg.set_type(RANDOM_RESPONSE_OK);
-    msg.set_size(0);
-
-    return nm->serialize(msg);
-}
-
-
 string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg) {
     Log("Received Attestation result");
 
@@ -430,6 +371,55 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
 
     return nm->serialize(msg);
 }
+
+string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
+    Log("Received secret data");
+
+    private_data_msg_t *p_private_data_msg = NULL;
+    this->assembleSecretMessage(msg, &p_private_data_msg);
+
+    sgx_status_t status;
+    sgx_status_t ret;
+
+    sgx_ec_key_128bit_t sk_key;
+    uint8_t response_data;
+    ret = random_response(this->enclave->getID(),
+                                &status,
+                                this->enclave->getContext(),
+                                p_private_data_msg->secret.payload, // cipher text
+                                p_private_data_msg->secret.payload_size, // length of text to be decrypted
+                                p_private_data_msg->secret.payload_tag, // mac
+                                MAX_VERIFICATION_RESULT,
+                                NULL,
+                                &sk_key,
+                                p_private_data_msg->open_data.privacy_parameter,
+                                &response_data);
+
+    if (SGX_SUCCESS != ret) {
+        Log("Error, random_response is failed", log::error);
+        print_error_message(ret);
+        return "";
+    } else if (SGX_SUCCESS != status) {
+        Log("Error, random_response is failed", log::error);
+        print_error_message(status);
+        return "";
+    } else {
+        Log("Private Random Response has done.");
+    }
+
+    SafeFree(p_private_data_msg);
+
+    // Get data
+    Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
+    Log("Client noised data is %u", *response_data);
+
+    Messages::InitialMessage msg;
+    msg.set_type(RANDOM_RESPONSE_OK);
+    msg.set_size(0);
+
+    return nm->serialize(msg);
+}
+
 
 
 string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
@@ -513,6 +503,7 @@ vector<string> MessageHandler::incomingHandler(string v, int type) {
             res.push_back(to_string(RA_APP_ATT_OK));
         }
     }
+    break;
     case RANDOM_RESPONSE: {	//Execute Random Response
         Messages::SecretMessage sec_msg;
         ret = sec_msg.ParseFromString(v);

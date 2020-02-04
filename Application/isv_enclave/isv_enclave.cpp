@@ -300,16 +300,55 @@ sgx_status_t verify_secret_data (
 }
 
 sgx_status_t random_response(
-    const char *message, size_t message_len, double epsilon, double *data) {
+    sgx_ra_context_t context,
+    uint8_t *p_secret,
+    uint32_t secret_size,
+    uint8_t *p_gcm_mac,
+    uint32_t max_verification_length,
+    uint8_t *p_ret,
+    sgx_ec_key_128bit_t *sk_key,
+    double epsilon,
+    uint8_t *response_data) {
     sgx_status_t ret = SGX_SUCCESS;
-	int status = random_response_mechanism(epsilon, data);
-	if (status != 1) {
-	  ret = SGX_ERROR_UNEXPECTED;
-	}
-	return ret;
+
+    do {
+        ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, sk_key);
+        if (SGX_SUCCESS != ret) {
+            break;
+        }
+
+        // in AESGCM output size = input size?
+        // https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode/26787
+        uint8_t *decrypted = (uint8_t*) malloc(sizeof(uint8_t) * secret_size);
+        uint8_t aes_gcm_iv[12] = {0};
+
+        ret = sgx_rijndael128GCM_decrypt(sk_key,
+                                         p_secret,
+                                         secret_size,
+                                         decrypted,
+                                         &aes_gcm_iv[0],
+                                         12,
+                                         NULL,
+                                         0,
+                                         (const sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
+
+        if (SGX_SUCCESS == ret) {
+            ret = SGX_ERROR_UNEXPECTED;
+            break;
+        }
+        *response_data = decrypted[0];
+        int status = random_response_mechanism(epsilon, response_data);
+        if (status != 1) {
+            ret = SGX_ERROR_UNEXPECTED;
+            break;
+        }
+
+    } while(0);
+
+    return ret;
 }
 
-int random_response_mechanism(double epsilon, double *data) {
+int random_response_mechanism(double epsilon, uint8_t *data) {
     double distortion = exp(epsilon) / (1+ exp(epsilon));
     uint8_t random = 0;
 
@@ -320,7 +359,11 @@ int random_response_mechanism(double epsilon, double *data) {
     double regularized_random = double(random) / UINT8_MAX; // reglarize
 
     if(regularized_random > distortion) {
-        *data = *data * (double)(-1);
+        if (*data == 0) {
+            *data = 1;
+        } else {
+            *data = 0;
+        }
     }
 
     return 1;

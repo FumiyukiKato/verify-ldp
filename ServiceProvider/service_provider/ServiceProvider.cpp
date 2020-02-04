@@ -596,6 +596,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         p_private_data_msg->private_data = sp_private_data;
         p_private_data_msg->open_data    = sp_open_data;
 
+        Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
+        Log("Client raw data is %u", p_private_data_msg->open_data);
+
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
 

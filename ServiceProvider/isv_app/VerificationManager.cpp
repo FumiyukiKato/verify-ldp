@@ -122,6 +122,12 @@ string VerificationManager::handleAppAttOk(Messages::InitialMessage msg) {
     return "";
 }
 
+string VerificationManager::handleRROk(Messages::InitialMessage msg) {
+    Log("Randomized Response is OK");
+
+    return "";
+}
+
 
 string VerificationManager::prepareVerificationRequest() {
     Log("Prepare Verification request");
@@ -184,6 +190,16 @@ vector<string> VerificationManager::incomingHandler(string v, int type) {
                 if (ok_msg.type() == RA_APP_ATT_OK) {
                     s = this->handleAppAttOk(ok_msg);
                     res.push_back(to_string(RANDOM_RESPONSE));
+                }
+            }
+        }
+        break;
+        case RANDOM_RESPONSE_OK: {
+            Messages::InitialMessage ok_msg;
+            ret = ok_msg.ParseFromString(v);
+            if (ret) {
+                if (ok_msg.type() == RANDOM_RESPONSE_OK) {
+                    this->handleRROk(ok_msg);
                 }
             }
         }
