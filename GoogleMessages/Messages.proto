@@ -64,6 +64,15 @@ message AttestationMessage {
 	repeated uint32 payload = 16 [packed=true];
 }
 
+message SecretMessage {
+	required uint32 type              = 1;
+	required uint32 size              = 2;
+
+	repeated uint32 encrypted_content = 3 [packed=true];
+	optional uint32 result_size       = 4;
+	repeated uint32 reserved          = 5 [packed=true];
+	repeated uint32 payload_tag       = 6 [packed=true];
+}
 
 
 

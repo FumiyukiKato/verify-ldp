@@ -52,7 +52,6 @@ typedef struct _sp_db_item_t {
     sgx_ps_sec_prop_desc_t   ps_sec_prop;
 } sp_db_item_t;
 
-
 class ServiceProvider {
 
 public:
@@ -63,6 +62,7 @@ public:
     int sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::AttestationMessage *att_msg);
     sgx_ra_msg3_t* assembleMSG3(Messages::MessageMSG3 msg);
     int sp_ra_proc_app_att_hmac(Messages::SecretMessage *new_msg, string hmac_key, string hmac_key_filename);
+    int proc_private_data(Messages::InitialMessage msg, Messages::SecretMessage sec_msg);
 
 private:
     WebService *ws = NULL;

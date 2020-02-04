@@ -30,7 +30,7 @@ private:
     string handleMSG1(Messages::MessageMSG1 msg);
     string handleMSG3(Messages::MessageMSG3 msg);
     string createInitMsg(int type, string msg);
-    string handleAppAttOk();
+    string handleAppAttOk(Messages::InitialMessage msg);
 
 private:
     static VerificationManager* instance;

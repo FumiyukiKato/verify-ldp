@@ -10,7 +10,9 @@ typedef enum _ra_msg_types {
     RA_MSG3,
     RA_ATT_RESULT,
     RA_VERIFICATION,
-    RA_APP_ATT_OK
+    RA_APP_ATT_OK,
+    RANDOM_RESPONSE,
+    RANDOM_RESPONSE_OK
 } ra_msg_types;
 
 

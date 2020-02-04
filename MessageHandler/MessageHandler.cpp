@@ -280,14 +280,92 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
     for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
         p_att_result_msg->secret.payload_tag[i] = msg.payload_tag(i);
 
-    for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
-        p_att_result_msg->secret.payload_tag[i] = msg.payload_tag(i);
-
     for (int i=0; i<msg.result_size(); i++) {
         p_att_result_msg->secret.payload[i] = (uint8_t)msg.payload(i);
     }
 
     *pp_att_msg = p_att_result_msg_full;
+}
+
+void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
+    private_data_msg_t *p_private_data_msg = NULL;
+
+    int total_size = msg.size();
+    p_private_data_msg = (p_private_data_msg*) malloc(total_size);
+
+    memset(p_private_data_msg, 0, total_size);
+
+    p_private_data_msg->secret.payload_size = msg.result_size();
+
+    for (int i=0; i<12; i++)
+        p_private_data_msg->secret.reserved[i] = msg.reserved(i);
+
+    for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
+        p_private_data_msg->secret.payload_tag[i] = msg.payload_tag(i);
+
+    for (int i=0; i<msg.result_size(); i++) {
+        p_private_data_msg->secret.payload[i] = (uint8_t)msg.payload(i);
+    }
+
+    *pp_sec_msg = p_private_data_msg;
+}
+
+string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
+    Log("Received secret data");
+
+    private_data_msg_t *p_private_data_msg = NULL;
+    this->assembleSecretMessage(msg, &p_private_data_msg);
+
+    sgx_status_t status;
+    sgx_status_t ret;
+
+    sgx_ec_key_128bit_t sk_key;
+    ret = verify_secret_data(this->enclave->getID(),
+                                &status,
+                                this->enclave->getContext(),
+                                p_private_data_msg->secret.payload, // cipher text
+                                p_private_data_msg->secret.payload_size, // length of text to be decrypted
+                                p_private_data_msg->secret.payload_tag, // mac
+                                MAX_VERIFICATION_RESULT,
+                                NULL,
+                                &sk_key);
+
+    if (SGX_SUCCESS != ret) {
+        Log("Error, attestation result message secret using SK based AESGCM failed1", log::error);
+        print_error_message(ret);
+        return "";
+    } else if (SGX_SUCCESS != status) {
+        Log("Error, attestation result message secret using SK based AESGCM failed2", log::error);
+        print_error_message(status);
+        return "";
+    } else {
+        Log("Send attestation okay");
+    }
+
+    SafeFree(p_private_data_msg);
+
+    /* Mechanism */
+    double epsilon = 1.0;
+	double data = 4.0;
+	ret = random_response(global_eid, &status,
+					        message, message_len, epsilon, &data);
+    if (SGX_SUCCESS != ret) {
+        Log("random_response is failed", log::error);
+        print_error_message(ret);
+        return "";
+    } else if (SGX_SUCCESS != status) {
+        Log("random_response is failed", log::error);
+        print_error_message(status);
+        return "";
+    } else {
+        Log("Send attestation okay");
+    }
+
+    Messages::InitialMessage msg;
+    msg.set_type(RANDOM_RESPONSE_OK);
+    msg.set_size(0);
+
+    return nm->serialize(msg);
 }
 
 
@@ -314,30 +392,21 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         return "";
     }
 
-    // Log("p_att_result_msg_full: %d", p_att_result_msg_full->status[0]);
-
     if (0 != p_att_result_msg_full->status[0] || 0 != p_att_result_msg_full->status[1]) {
         Log("Error, attestation mac result message MK based cmac failed", log::error);
         return "";
     }
 
-    Log("status = %x", status, log::error);
-    Log("MAC: %u%u", p_att_result_msg_body->secret.payload_tag[0], p_att_result_msg_body->secret.payload_tag[14]);
     sgx_ec_key_128bit_t sk_key;
     ret = verify_secret_data(this->enclave->getID(),
                                 &status,
                                 this->enclave->getContext(),
-                                p_att_result_msg_body->secret.payload,
-                                p_att_result_msg_body->secret.payload_size,
-                                p_att_result_msg_body->secret.payload_tag,
+                                p_att_result_msg_body->secret.payload, // cipher text
+                                p_att_result_msg_body->secret.payload_size, // length of text to be decrypted
+                                p_att_result_msg_body->secret.payload_tag, // mac
                                 MAX_VERIFICATION_RESULT,
                                 NULL,
                                 &sk_key);
-
-    // Log("status = %x", status, log::error);
-
-    // Log("SK=");
-    // print_hexstring(sk_key, sizeof(sk_key));
 
     SafeFree(p_att_result_msg_full);
 
@@ -353,32 +422,11 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         Log("Send attestation okay");
     }
 
-    /* Mechanism */
-    double epsilon = 1.0;
-	double data = 4.0;
-	ret = random_response(global_eid, &status,
-					        message, message_len, epsilon, &data);
-    if (SGX_SUCCESS != ret) {
-        Log("random_response is failed", log::error);
-        print_error_message(ret);
-        return "";
-    } else if (SGX_SUCCESS != status) {
-        Log("random_response is failed", log::error);
-        print_error_message(status);
-        return "";
-    } else {
-        Log("Send attestation okay");
-    }
-
     Messages::InitialMessage msg;
     msg.set_type(RA_APP_ATT_OK);
     msg.set_size(0);
 
     return nm->serialize(msg);
-
-    SafeFree(p_att_result_msg_full);
-
-    return "";
 }
 
 
@@ -414,7 +462,7 @@ string MessageHandler::handleVerification() {
 
 
 string MessageHandler::createInitMsg(int type, string msg) {
-    Messages::SecretMessage init_msg;
+    Messages::InitialMessage init_msg;
     init_msg.set_type(type);
     init_msg.set_size(msg.size());
 
@@ -461,6 +509,14 @@ vector<string> MessageHandler::incomingHandler(string v, int type) {
         if (ret && att_msg.type() == RA_ATT_RESULT) {
             s = this->handleAttestationResult(att_msg);
             res.push_back(to_string(RA_APP_ATT_OK));
+        }
+    }
+    case RANDOM_RESPONSE: {	//Execute Random Response
+        Messages::SecretMessage sec_msg;
+        ret = sec_msg.ParseFromString(v);
+        if (ret && sec_msg.type() == RANDOM_RESPONSE) {
+            s = this->handleRandomResponse(sec_msg);
+            res.push_back(to_string(RANDOM_RESPONSE_OK));
         }
     }
     break;

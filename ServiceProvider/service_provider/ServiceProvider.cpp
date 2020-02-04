@@ -568,3 +568,65 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
     return ret;
 }
 
+// Process preparing private secret data
+int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::SecretMessage *sec_msg) {
+    int ret = SAMPLE_SUCCESS;
+    private_data_msg_t *p_private_data_msg = NULL;
+    uint32_t private_data_msg_size;
+    sp_private_data_t sp_private_data;
+    memset(&sp_private_data, 0, sizeof(sp_private_data_t));
+
+    // read private data from file
+    uint8_t *data_buf;
+    ReadFileToBuffer(Settings::client_private_data_path, &data_buf);
+    sp_private_data.data = data_buf[0];
+
+    do {
+        // Respond the client with the results of the attestation.
+        private_data_msg_size = sizeof(private_data_msg_t);
+
+        p_private_data_msg->private_data = sp_private_data;
+
+        // Generate shared secret and encrypt it with SK
+        uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
+
+
+        ret = sample_rijndael128GCM_encrypt(&g_sp_db.sk_key, // p_key
+                                            (const uint8_t*)&p_private_data_msg->private_data.data, // p_src
+                                            p_private_data_msg->secret.payload_size, // p_len
+                                            p_private_data_msg->secret.payload, //p_dst
+                                            &aes_gcm_iv[0], //p_iv
+                                            SAMPLE_SP_IV_SIZE, // iv_len
+                                            NULL, // p_add
+                                            0, //add_len
+                                            &p_private_data_msg->secret.payload_tag); // p_out_mac 
+
+        if (SAMPLE_SUCCESS != sample_ret) {
+            Log("Error, encryption fail", log::error);
+            ret = SP_INTERNAL_ERROR;
+            break;
+        }
+        p_private_data_msg->secret.payload_size = sizeof(p_private_data_msg->secret.payload);
+
+    } while(0);
+
+    if (ret) {
+        return -1;
+    } else {
+        sec_msg->set_size(private_data_msg_size);
+        // encrypted private data
+        for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
+            sec_msg->add_encrypted_content(p_private_data_msg->secret.payload[i]);
+
+        // plain text size
+        sec_msg->set_result_size(p_private_data_msg->secret.payload_size);
+
+        for (int i=0; i<12; i++)
+            sec_msg->add_reserved(p_private_data_msg->secret.reserved[i]);
+        // mac of aesgcm
+        for (int i=0; i<16; i++)
+            sec_msg->add_payload_tag(p_private_data_msg->secret.payload_tag[i]);
+    }
+
+    return ret;
+}

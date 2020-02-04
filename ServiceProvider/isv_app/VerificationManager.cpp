@@ -104,8 +104,21 @@ string VerificationManager::handleMSG3(Messages::MessageMSG3 msg) {
 }
 
 
-string VerificationManager::handleAppAttOk() {
+string VerificationManager::handleAppAttOk(Messages::InitialMessage msg) {
     Log("APP attestation result received");
+    Log("Sending Private Data");
+
+    Messages::SecretMessage sec_msg;
+    pri_msg.set_type(RANDOM_RESPONSE);
+
+    int ret = this->sp->proc_private_data(msg, &sec_msg);
+    if (ret == -1) {
+        Log("Error, failed to prepare private data");
+    } else {
+        Log("private data is properly encrypted");
+        return nm->serialize(sec_msg);
+    }
+
     return "";
 }
 
@@ -165,11 +178,12 @@ vector<string> VerificationManager::incomingHandler(string v, int type) {
         }
         break;
         case RA_APP_ATT_OK: {
-            Messages::SecretMessage sec_msg;
-            ret = sec_msg.ParseFromString(v);
+            Messages::InitialMessage ok_msg;
+            ret = ok_msg.ParseFromString(v);
             if (ret) {
-                if (sec_msg.type() == RA_APP_ATT_OK) {
-                    this->handleAppAttOk();
+                if (ok_msg.type() == RA_APP_ATT_OK) {
+                    s = this->handleAppAttOk(ok_msg);
+                    res.push_back(to_string(RANDOM_RESPONSE));
                 }
             }
         }
