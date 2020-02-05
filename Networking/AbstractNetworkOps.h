@@ -19,6 +19,8 @@ using namespace std;
 
 typedef function<vector<string>(string, int)> CallbackHandler;
 
+#define SOCKET_SHORT_READ_ERROR 335544539
+
 class AbstractNetworkOps {
 
     typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_socket;

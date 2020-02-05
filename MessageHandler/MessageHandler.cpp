@@ -412,14 +412,14 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
         Log("Private Random Response has done.");
     }
 
-    SafeFree(p_private_data_msg);
-
     // Get data
     Log("Peturbation is done");
 
     Log("Client data information:");
     Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
-    Log("\traw data: %u", unsigned(response_data));
+    Log("\trandomized data: %u", unsigned(response_data));
+
+    SafeFree(p_private_data_msg);
 
     Messages::InitialMessage ret_msg;
     ret_msg.set_type(RANDOM_RESPONSE_OK);

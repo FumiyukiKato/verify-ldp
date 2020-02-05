@@ -23,7 +23,7 @@ void AbstractNetworkOps::saveCloseSocket() {
         stringstream ss;
         Log("Socket shutdown error: %s", ec.message());
     } else {
-        socket_.lowest_layer().close();
+        socket_.lowest_layer().close(ec);
     }
 }
 
@@ -38,9 +38,13 @@ void AbstractNetworkOps::read() {
     if (ec) {
         if ((boost::asio::error::eof == ec) || (boost::asio::error::connection_reset == ec)) {
             Log("Connection has been closed by remote host");
-        } else {
+        } else if (ec.value() == SOCKET_SHORT_READ_ERROR) {
+	    // handle short read error when finising protocol
+	    // https://github.com/boostorg/beast/issues/1123
+      	    Log("Connection has been closed by remote host");
+	} else {
             Log("Unknown socket error while reading occured!", log::error);
-        }
+        } 
     } else {
         vector<string> incomming;
         boost::split(incomming, buffer_header, boost::is_any_of("@"));
