@@ -1064,24 +1064,10 @@ class SecretMessage : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 size() const;
   inline void set_size(::google::protobuf::uint32 value);
 
-  // optional uint32 encryped_pkey_size = 3;
-  inline bool has_encryped_pkey_size() const;
-  inline void clear_encryped_pkey_size();
-  static const int kEncrypedPkeySizeFieldNumber = 3;
-  inline ::google::protobuf::uint32 encryped_pkey_size() const;
-  inline void set_encryped_pkey_size(::google::protobuf::uint32 value);
-
-  // optional uint32 encryped_x509_size = 4;
-  inline bool has_encryped_x509_size() const;
-  inline void clear_encryped_x509_size();
-  static const int kEncrypedX509SizeFieldNumber = 4;
-  inline ::google::protobuf::uint32 encryped_x509_size() const;
-  inline void set_encryped_x509_size(::google::protobuf::uint32 value);
-
-  // repeated uint32 encrypted_content = 5 [packed = true];
+  // repeated uint32 encrypted_content = 3 [packed = true];
   inline int encrypted_content_size() const;
   inline void clear_encrypted_content();
-  static const int kEncryptedContentFieldNumber = 5;
+  static const int kEncryptedContentFieldNumber = 3;
   inline ::google::protobuf::uint32 encrypted_content(int index) const;
   inline void set_encrypted_content(int index, ::google::protobuf::uint32 value);
   inline void add_encrypted_content(::google::protobuf::uint32 value);
@@ -1090,65 +1076,43 @@ class SecretMessage : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
       mutable_encrypted_content();
 
-  // repeated uint32 mac_smk = 6 [packed = true];
-  inline int mac_smk_size() const;
-  inline void clear_mac_smk();
-  static const int kMacSmkFieldNumber = 6;
-  inline ::google::protobuf::uint32 mac_smk(int index) const;
-  inline void set_mac_smk(int index, ::google::protobuf::uint32 value);
-  inline void add_mac_smk(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      mac_smk() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_mac_smk();
+  // optional uint32 result_size = 4;
+  inline bool has_result_size() const;
+  inline void clear_result_size();
+  static const int kResultSizeFieldNumber = 4;
+  inline ::google::protobuf::uint32 result_size() const;
+  inline void set_result_size(::google::protobuf::uint32 value);
 
-  // repeated uint32 encrypted_pkey = 7 [packed = true];
-  inline int encrypted_pkey_size() const;
-  inline void clear_encrypted_pkey();
-  static const int kEncryptedPkeyFieldNumber = 7;
-  inline ::google::protobuf::uint32 encrypted_pkey(int index) const;
-  inline void set_encrypted_pkey(int index, ::google::protobuf::uint32 value);
-  inline void add_encrypted_pkey(::google::protobuf::uint32 value);
+  // repeated uint32 reserved = 5 [packed = true];
+  inline int reserved_size() const;
+  inline void clear_reserved();
+  static const int kReservedFieldNumber = 5;
+  inline ::google::protobuf::uint32 reserved(int index) const;
+  inline void set_reserved(int index, ::google::protobuf::uint32 value);
+  inline void add_reserved(::google::protobuf::uint32 value);
   inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      encrypted_pkey() const;
+      reserved() const;
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_encrypted_pkey();
+      mutable_reserved();
 
-  // repeated uint32 encrypted_pkey_mac_smk = 8 [packed = true];
-  inline int encrypted_pkey_mac_smk_size() const;
-  inline void clear_encrypted_pkey_mac_smk();
-  static const int kEncryptedPkeyMacSmkFieldNumber = 8;
-  inline ::google::protobuf::uint32 encrypted_pkey_mac_smk(int index) const;
-  inline void set_encrypted_pkey_mac_smk(int index, ::google::protobuf::uint32 value);
-  inline void add_encrypted_pkey_mac_smk(::google::protobuf::uint32 value);
+  // repeated uint32 payload_tag = 6 [packed = true];
+  inline int payload_tag_size() const;
+  inline void clear_payload_tag();
+  static const int kPayloadTagFieldNumber = 6;
+  inline ::google::protobuf::uint32 payload_tag(int index) const;
+  inline void set_payload_tag(int index, ::google::protobuf::uint32 value);
+  inline void add_payload_tag(::google::protobuf::uint32 value);
   inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      encrypted_pkey_mac_smk() const;
+      payload_tag() const;
   inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_encrypted_pkey_mac_smk();
+      mutable_payload_tag();
 
-  // repeated uint32 encrypted_x509 = 9 [packed = true];
-  inline int encrypted_x509_size() const;
-  inline void clear_encrypted_x509();
-  static const int kEncryptedX509FieldNumber = 9;
-  inline ::google::protobuf::uint32 encrypted_x509(int index) const;
-  inline void set_encrypted_x509(int index, ::google::protobuf::uint32 value);
-  inline void add_encrypted_x509(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      encrypted_x509() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_encrypted_x509();
-
-  // repeated uint32 encrypted_x509_mac_smk = 10 [packed = true];
-  inline int encrypted_x509_mac_smk_size() const;
-  inline void clear_encrypted_x509_mac_smk();
-  static const int kEncryptedX509MacSmkFieldNumber = 10;
-  inline ::google::protobuf::uint32 encrypted_x509_mac_smk(int index) const;
-  inline void set_encrypted_x509_mac_smk(int index, ::google::protobuf::uint32 value);
-  inline void add_encrypted_x509_mac_smk(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      encrypted_x509_mac_smk() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_encrypted_x509_mac_smk();
+  // optional double privacy_parameter = 7;
+  inline bool has_privacy_parameter() const;
+  inline void clear_privacy_parameter();
+  static const int kPrivacyParameterFieldNumber = 7;
+  inline double privacy_parameter() const;
+  inline void set_privacy_parameter(double value);
 
   // @@protoc_insertion_point(class_scope:Messages.SecretMessage)
  private:
@@ -1156,10 +1120,10 @@ class SecretMessage : public ::google::protobuf::Message {
   inline void clear_has_type();
   inline void set_has_size();
   inline void clear_has_size();
-  inline void set_has_encryped_pkey_size();
-  inline void clear_has_encryped_pkey_size();
-  inline void set_has_encryped_x509_size();
-  inline void clear_has_encryped_x509_size();
+  inline void set_has_result_size();
+  inline void clear_has_result_size();
+  inline void set_has_privacy_parameter();
+  inline void clear_has_privacy_parameter();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1167,20 +1131,14 @@ class SecretMessage : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::uint32 type_;
   ::google::protobuf::uint32 size_;
-  ::google::protobuf::uint32 encryped_pkey_size_;
-  ::google::protobuf::uint32 encryped_x509_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > encrypted_content_;
   mutable int _encrypted_content_cached_byte_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > mac_smk_;
-  mutable int _mac_smk_cached_byte_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > encrypted_pkey_;
-  mutable int _encrypted_pkey_cached_byte_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > encrypted_pkey_mac_smk_;
-  mutable int _encrypted_pkey_mac_smk_cached_byte_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > encrypted_x509_;
-  mutable int _encrypted_x509_cached_byte_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > encrypted_x509_mac_smk_;
-  mutable int _encrypted_x509_mac_smk_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > reserved_;
+  mutable int _reserved_cached_byte_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > payload_tag_;
+  mutable int _payload_tag_cached_byte_size_;
+  double privacy_parameter_;
+  ::google::protobuf::uint32 result_size_;
   friend void  protobuf_AddDesc_Messages_2eproto();
   friend void protobuf_AssignDesc_Messages_2eproto();
   friend void protobuf_ShutdownFile_Messages_2eproto();
@@ -2473,55 +2431,7 @@ inline void SecretMessage::set_size(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:Messages.SecretMessage.size)
 }
 
-// optional uint32 encryped_pkey_size = 3;
-inline bool SecretMessage::has_encryped_pkey_size() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void SecretMessage::set_has_encryped_pkey_size() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void SecretMessage::clear_has_encryped_pkey_size() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void SecretMessage::clear_encryped_pkey_size() {
-  encryped_pkey_size_ = 0u;
-  clear_has_encryped_pkey_size();
-}
-inline ::google::protobuf::uint32 SecretMessage::encryped_pkey_size() const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encryped_pkey_size)
-  return encryped_pkey_size_;
-}
-inline void SecretMessage::set_encryped_pkey_size(::google::protobuf::uint32 value) {
-  set_has_encryped_pkey_size();
-  encryped_pkey_size_ = value;
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encryped_pkey_size)
-}
-
-// optional uint32 encryped_x509_size = 4;
-inline bool SecretMessage::has_encryped_x509_size() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void SecretMessage::set_has_encryped_x509_size() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void SecretMessage::clear_has_encryped_x509_size() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void SecretMessage::clear_encryped_x509_size() {
-  encryped_x509_size_ = 0u;
-  clear_has_encryped_x509_size();
-}
-inline ::google::protobuf::uint32 SecretMessage::encryped_x509_size() const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encryped_x509_size)
-  return encryped_x509_size_;
-}
-inline void SecretMessage::set_encryped_x509_size(::google::protobuf::uint32 value) {
-  set_has_encryped_x509_size();
-  encryped_x509_size_ = value;
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encryped_x509_size)
-}
-
-// repeated uint32 encrypted_content = 5 [packed = true];
+// repeated uint32 encrypted_content = 3 [packed = true];
 inline int SecretMessage::encrypted_content_size() const {
   return encrypted_content_.size();
 }
@@ -2551,154 +2461,112 @@ SecretMessage::mutable_encrypted_content() {
   return &encrypted_content_;
 }
 
-// repeated uint32 mac_smk = 6 [packed = true];
-inline int SecretMessage::mac_smk_size() const {
-  return mac_smk_.size();
+// optional uint32 result_size = 4;
+inline bool SecretMessage::has_result_size() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void SecretMessage::clear_mac_smk() {
-  mac_smk_.Clear();
+inline void SecretMessage::set_has_result_size() {
+  _has_bits_[0] |= 0x00000008u;
 }
-inline ::google::protobuf::uint32 SecretMessage::mac_smk(int index) const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.mac_smk)
-  return mac_smk_.Get(index);
+inline void SecretMessage::clear_has_result_size() {
+  _has_bits_[0] &= ~0x00000008u;
 }
-inline void SecretMessage::set_mac_smk(int index, ::google::protobuf::uint32 value) {
-  mac_smk_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.mac_smk)
+inline void SecretMessage::clear_result_size() {
+  result_size_ = 0u;
+  clear_has_result_size();
 }
-inline void SecretMessage::add_mac_smk(::google::protobuf::uint32 value) {
-  mac_smk_.Add(value);
-  // @@protoc_insertion_point(field_add:Messages.SecretMessage.mac_smk)
+inline ::google::protobuf::uint32 SecretMessage::result_size() const {
+  // @@protoc_insertion_point(field_get:Messages.SecretMessage.result_size)
+  return result_size_;
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SecretMessage::mac_smk() const {
-  // @@protoc_insertion_point(field_list:Messages.SecretMessage.mac_smk)
-  return mac_smk_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SecretMessage::mutable_mac_smk() {
-  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.mac_smk)
-  return &mac_smk_;
+inline void SecretMessage::set_result_size(::google::protobuf::uint32 value) {
+  set_has_result_size();
+  result_size_ = value;
+  // @@protoc_insertion_point(field_set:Messages.SecretMessage.result_size)
 }
 
-// repeated uint32 encrypted_pkey = 7 [packed = true];
-inline int SecretMessage::encrypted_pkey_size() const {
-  return encrypted_pkey_.size();
+// repeated uint32 reserved = 5 [packed = true];
+inline int SecretMessage::reserved_size() const {
+  return reserved_.size();
 }
-inline void SecretMessage::clear_encrypted_pkey() {
-  encrypted_pkey_.Clear();
+inline void SecretMessage::clear_reserved() {
+  reserved_.Clear();
 }
-inline ::google::protobuf::uint32 SecretMessage::encrypted_pkey(int index) const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encrypted_pkey)
-  return encrypted_pkey_.Get(index);
+inline ::google::protobuf::uint32 SecretMessage::reserved(int index) const {
+  // @@protoc_insertion_point(field_get:Messages.SecretMessage.reserved)
+  return reserved_.Get(index);
 }
-inline void SecretMessage::set_encrypted_pkey(int index, ::google::protobuf::uint32 value) {
-  encrypted_pkey_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encrypted_pkey)
+inline void SecretMessage::set_reserved(int index, ::google::protobuf::uint32 value) {
+  reserved_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Messages.SecretMessage.reserved)
 }
-inline void SecretMessage::add_encrypted_pkey(::google::protobuf::uint32 value) {
-  encrypted_pkey_.Add(value);
-  // @@protoc_insertion_point(field_add:Messages.SecretMessage.encrypted_pkey)
+inline void SecretMessage::add_reserved(::google::protobuf::uint32 value) {
+  reserved_.Add(value);
+  // @@protoc_insertion_point(field_add:Messages.SecretMessage.reserved)
 }
 inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SecretMessage::encrypted_pkey() const {
-  // @@protoc_insertion_point(field_list:Messages.SecretMessage.encrypted_pkey)
-  return encrypted_pkey_;
+SecretMessage::reserved() const {
+  // @@protoc_insertion_point(field_list:Messages.SecretMessage.reserved)
+  return reserved_;
 }
 inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SecretMessage::mutable_encrypted_pkey() {
-  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.encrypted_pkey)
-  return &encrypted_pkey_;
+SecretMessage::mutable_reserved() {
+  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.reserved)
+  return &reserved_;
 }
 
-// repeated uint32 encrypted_pkey_mac_smk = 8 [packed = true];
-inline int SecretMessage::encrypted_pkey_mac_smk_size() const {
-  return encrypted_pkey_mac_smk_.size();
+// repeated uint32 payload_tag = 6 [packed = true];
+inline int SecretMessage::payload_tag_size() const {
+  return payload_tag_.size();
 }
-inline void SecretMessage::clear_encrypted_pkey_mac_smk() {
-  encrypted_pkey_mac_smk_.Clear();
+inline void SecretMessage::clear_payload_tag() {
+  payload_tag_.Clear();
 }
-inline ::google::protobuf::uint32 SecretMessage::encrypted_pkey_mac_smk(int index) const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encrypted_pkey_mac_smk)
-  return encrypted_pkey_mac_smk_.Get(index);
+inline ::google::protobuf::uint32 SecretMessage::payload_tag(int index) const {
+  // @@protoc_insertion_point(field_get:Messages.SecretMessage.payload_tag)
+  return payload_tag_.Get(index);
 }
-inline void SecretMessage::set_encrypted_pkey_mac_smk(int index, ::google::protobuf::uint32 value) {
-  encrypted_pkey_mac_smk_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encrypted_pkey_mac_smk)
+inline void SecretMessage::set_payload_tag(int index, ::google::protobuf::uint32 value) {
+  payload_tag_.Set(index, value);
+  // @@protoc_insertion_point(field_set:Messages.SecretMessage.payload_tag)
 }
-inline void SecretMessage::add_encrypted_pkey_mac_smk(::google::protobuf::uint32 value) {
-  encrypted_pkey_mac_smk_.Add(value);
-  // @@protoc_insertion_point(field_add:Messages.SecretMessage.encrypted_pkey_mac_smk)
+inline void SecretMessage::add_payload_tag(::google::protobuf::uint32 value) {
+  payload_tag_.Add(value);
+  // @@protoc_insertion_point(field_add:Messages.SecretMessage.payload_tag)
 }
 inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SecretMessage::encrypted_pkey_mac_smk() const {
-  // @@protoc_insertion_point(field_list:Messages.SecretMessage.encrypted_pkey_mac_smk)
-  return encrypted_pkey_mac_smk_;
+SecretMessage::payload_tag() const {
+  // @@protoc_insertion_point(field_list:Messages.SecretMessage.payload_tag)
+  return payload_tag_;
 }
 inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SecretMessage::mutable_encrypted_pkey_mac_smk() {
-  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.encrypted_pkey_mac_smk)
-  return &encrypted_pkey_mac_smk_;
+SecretMessage::mutable_payload_tag() {
+  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.payload_tag)
+  return &payload_tag_;
 }
 
-// repeated uint32 encrypted_x509 = 9 [packed = true];
-inline int SecretMessage::encrypted_x509_size() const {
-  return encrypted_x509_.size();
+// optional double privacy_parameter = 7;
+inline bool SecretMessage::has_privacy_parameter() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
-inline void SecretMessage::clear_encrypted_x509() {
-  encrypted_x509_.Clear();
+inline void SecretMessage::set_has_privacy_parameter() {
+  _has_bits_[0] |= 0x00000040u;
 }
-inline ::google::protobuf::uint32 SecretMessage::encrypted_x509(int index) const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encrypted_x509)
-  return encrypted_x509_.Get(index);
+inline void SecretMessage::clear_has_privacy_parameter() {
+  _has_bits_[0] &= ~0x00000040u;
 }
-inline void SecretMessage::set_encrypted_x509(int index, ::google::protobuf::uint32 value) {
-  encrypted_x509_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encrypted_x509)
+inline void SecretMessage::clear_privacy_parameter() {
+  privacy_parameter_ = 0;
+  clear_has_privacy_parameter();
 }
-inline void SecretMessage::add_encrypted_x509(::google::protobuf::uint32 value) {
-  encrypted_x509_.Add(value);
-  // @@protoc_insertion_point(field_add:Messages.SecretMessage.encrypted_x509)
+inline double SecretMessage::privacy_parameter() const {
+  // @@protoc_insertion_point(field_get:Messages.SecretMessage.privacy_parameter)
+  return privacy_parameter_;
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SecretMessage::encrypted_x509() const {
-  // @@protoc_insertion_point(field_list:Messages.SecretMessage.encrypted_x509)
-  return encrypted_x509_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SecretMessage::mutable_encrypted_x509() {
-  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.encrypted_x509)
-  return &encrypted_x509_;
-}
-
-// repeated uint32 encrypted_x509_mac_smk = 10 [packed = true];
-inline int SecretMessage::encrypted_x509_mac_smk_size() const {
-  return encrypted_x509_mac_smk_.size();
-}
-inline void SecretMessage::clear_encrypted_x509_mac_smk() {
-  encrypted_x509_mac_smk_.Clear();
-}
-inline ::google::protobuf::uint32 SecretMessage::encrypted_x509_mac_smk(int index) const {
-  // @@protoc_insertion_point(field_get:Messages.SecretMessage.encrypted_x509_mac_smk)
-  return encrypted_x509_mac_smk_.Get(index);
-}
-inline void SecretMessage::set_encrypted_x509_mac_smk(int index, ::google::protobuf::uint32 value) {
-  encrypted_x509_mac_smk_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Messages.SecretMessage.encrypted_x509_mac_smk)
-}
-inline void SecretMessage::add_encrypted_x509_mac_smk(::google::protobuf::uint32 value) {
-  encrypted_x509_mac_smk_.Add(value);
-  // @@protoc_insertion_point(field_add:Messages.SecretMessage.encrypted_x509_mac_smk)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-SecretMessage::encrypted_x509_mac_smk() const {
-  // @@protoc_insertion_point(field_list:Messages.SecretMessage.encrypted_x509_mac_smk)
-  return encrypted_x509_mac_smk_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-SecretMessage::mutable_encrypted_x509_mac_smk() {
-  // @@protoc_insertion_point(field_mutable_list:Messages.SecretMessage.encrypted_x509_mac_smk)
-  return &encrypted_x509_mac_smk_;
+inline void SecretMessage::set_privacy_parameter(double value) {
+  set_has_privacy_parameter();
+  privacy_parameter_ = value;
+  // @@protoc_insertion_point(field_set:Messages.SecretMessage.privacy_parameter)
 }
 
 
