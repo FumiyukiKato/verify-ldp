@@ -32,6 +32,7 @@ private:
     string handleAppAttOk(Messages::InitialMessage msg);
     string handleRROk(Messages::InitialMessage msg);
     string handleInitRequest(Messages::InitialMessage init_msg);
+    void refreshServiceProvider();
 
 private:
     static VerificationManager* instance;

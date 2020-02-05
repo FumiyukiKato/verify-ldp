@@ -27,12 +27,16 @@ VerificationManager* VerificationManager::getInstance() {
     return instance;
 }
 
-
-int VerificationManager::init() {
+void VerificationManager::refreshServiceProvider() {
     if (this->sp) {
         delete this->sp;
         this->sp = new ServiceProvider(this->ws);
     }
+    return;
+}
+
+int VerificationManager::init() {
+    refreshServiceProvider();
 
     this->nm->Init();
     this->nm->connectCallbackHandler([this](string v, int type) {
@@ -124,7 +128,7 @@ string VerificationManager::handleAppAttOk(Messages::InitialMessage msg) {
 
 string VerificationManager::handleRROk(Messages::InitialMessage msg) {
     Log("Randomized Response is OK");
-
+    refreshServiceProvider();
     return "";
 }
 
