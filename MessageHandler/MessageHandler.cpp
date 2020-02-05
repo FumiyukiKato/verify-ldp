@@ -307,7 +307,8 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     }
 
     p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-    Log("Secret Message pp %lf", msg.privacy_parameter());
+    Log("Secret Message pp direct %lf", msg.privacy_parameter());
+    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
 
     *pp_sec_msg = p_private_data_msg;
 }
@@ -384,7 +385,8 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
     uint8_t response_data;
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
+    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
+    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
 
     ret = random_response(this->enclave->getID(),
                                 &status,
@@ -414,8 +416,10 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
 
     // Get data
     Log("Peturbation is done");
-    Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
-    Log("Client noised data is %u", response_data);
+
+    Log("Client data information:");
+    Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
+    Log("\traw data: %u", unsigned(response_data));
 
     Messages::InitialMessage ret_msg;
     ret_msg.set_type(RANDOM_RESPONSE_OK);

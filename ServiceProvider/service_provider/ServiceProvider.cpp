@@ -602,8 +602,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         p_private_data_msg->private_data = sp_private_data;
         p_private_data_msg->open_data    = sp_open_data;
 
-        Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
-        Log("Client raw data is %u", unsigned(p_private_data_msg->private_data.data));
+        Log("Client data information:");
+        Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
+        Log("\traw data: %u", unsigned(p_private_data_msg->private_data.data));
 
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
@@ -631,7 +632,7 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("encrypted payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
+    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
 
     if (ret) {
         return -1;
