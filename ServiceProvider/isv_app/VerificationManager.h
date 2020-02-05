@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "ServiceProvider.h"
-#include "NetworkManagerClient.h"
+#include "NetworkManagerServer.h"
 #include "LogBase.h"
 #include "Messages.pb.h"
 #include "WebService.h"
@@ -25,7 +25,6 @@ public:
 
 private:
     VerificationManager();
-    string prepareVerificationRequest();
     string handleMSG0(Messages::MessageMsg0 m);
     string handleMSG1(Messages::MessageMSG1 msg);
     string handleMSG3(Messages::MessageMSG3 msg);
@@ -35,7 +34,7 @@ private:
 
 private:
     static VerificationManager* instance;
-    NetworkManagerClient *nm = NULL;
+    NetworkManagerServer *nm = NULL;
     ServiceProvider *sp = NULL;
     WebService *ws = NULL;
 };

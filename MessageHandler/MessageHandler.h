@@ -9,7 +9,7 @@
 #include <iomanip>
 
 #include "Enclave.h"
-#include "NetworkManagerServer.h"
+#include "NetworkManagerClient.h"
 #include "Messages.pb.h"
 #include "UtilityFunctions.h"
 #include "remote_attestation_result.h"
@@ -46,13 +46,14 @@ private:
     string createInitMsg(int type, string msg);
     string handleRandomResponse(Messages::SecretMessage msg);
     void assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg);
+    string prepareVerificationRequest();
 
 protected:
     Enclave *enclave = NULL;
 
 private:
     int busy_retry_time = 4;
-    NetworkManagerServer *nm = NULL;
+    NetworkManagerClient *nm = NULL;
 
 };
 

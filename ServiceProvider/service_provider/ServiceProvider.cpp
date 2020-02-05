@@ -27,7 +27,7 @@ int ServiceProvider::sp_ra_proc_msg0_req(const uint32_t id) {
 
         extended_epid_group_id = id;
         this->g_is_sp_registered = true;
-	
+
 	if (id == ADMITTED_EXTENDED_GID) {
 	      ret = SP_OK;
 	}

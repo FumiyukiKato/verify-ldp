@@ -3,7 +3,7 @@
 using namespace util;
 
 MessageHandler::MessageHandler(int port) {
-    this->nm = NetworkManagerServer::getInstance(port);
+    this->nm = NetworkManagerClient::getInstance(Settings::rh_port, Settings::rh_host);
 }
 
 MessageHandler::~MessageHandler() {
@@ -469,64 +469,78 @@ string MessageHandler::createInitMsg(int type, string msg) {
     return nm->serialize(init_msg);
 }
 
+string MessageHandler::prepareVerificationRequest() {
+    Log("Initial request for sending data");
+
+    Messages::InitialMessage msg;
+    msg.set_type(INIT_REQUEST);
+
+    return nm->serialize(msg);
+}
+
 
 vector<string> MessageHandler::incomingHandler(string v, int type) {
     vector<string> res;
-    string s;
-    bool ret;
+    if (!v.empty()) {
+        string s;
+        bool ret;
 
-    switch (type) {
-    case RA_VERIFICATION: {	//Verification request
-        Messages::InitialMessage init_msg;
-        ret = init_msg.ParseFromString(v);
-        if (ret && init_msg.type() == RA_VERIFICATION) {
-            s = this->handleVerification();
-            res.push_back(to_string(RA_MSG0));
+        switch (type) {
+        case RA_VERIFICATION: {	//Verification request
+            Messages::InitialMessage init_msg;
+            ret = init_msg.ParseFromString(v);
+            if (ret && init_msg.type() == RA_VERIFICATION) {
+                s = this->handleVerification();
+                res.push_back(to_string(RA_MSG0));
+            }
         }
-    }
-    break;
-    case RA_MSG0: {		//Reply to MSG0
-        Messages::MessageMsg0 msg0;
-        ret = msg0.ParseFromString(v);
-        if (ret && (msg0.type() == RA_MSG0)) {
-            s = this->handleMSG0(msg0);
-            res.push_back(to_string(RA_MSG1));
-        }
-    }
-    break;
-    case RA_MSG2: {		//MSG2
-        Messages::MessageMSG2 msg2;
-        ret = msg2.ParseFromString(v);
-        if (ret && (msg2.type() == RA_MSG2)) {
-            s = this->handleMSG2(msg2);
-            res.push_back(to_string(RA_MSG3));
-        }
-    }
-    break;
-    case RA_ATT_RESULT: {	//Reply to MSG3
-        Messages::AttestationMessage att_msg;
-        ret = att_msg.ParseFromString(v);
-        if (ret && att_msg.type() == RA_ATT_RESULT) {
-            s = this->handleAttestationResult(att_msg);
-            res.push_back(to_string(RA_APP_ATT_OK));
-        }
-    }
-    break;
-    case RANDOM_RESPONSE: {	//Execute Random Response
-        Messages::SecretMessage sec_msg;
-        ret = sec_msg.ParseFromString(v);
-        if (ret && sec_msg.type() == RANDOM_RESPONSE) {
-            s = this->handleRandomResponse(sec_msg);
-            res.push_back(to_string(RANDOM_RESPONSE_OK));
-        }
-    }
-    break;
-    default:
-        Log("Unknown type: %d", type, log::error);
         break;
-    }
+        case RA_MSG0: {		//Reply to MSG0
+            Messages::MessageMsg0 msg0;
+            ret = msg0.ParseFromString(v);
+            if (ret && (msg0.type() == RA_MSG0)) {
+                s = this->handleMSG0(msg0);
+                res.push_back(to_string(RA_MSG1));
+            }
+        }
+        break;
+        case RA_MSG2: {		//MSG2
+            Messages::MessageMSG2 msg2;
+            ret = msg2.ParseFromString(v);
+            if (ret && (msg2.type() == RA_MSG2)) {
+                s = this->handleMSG2(msg2);
+                res.push_back(to_string(RA_MSG3));
+            }
+        }
+        break;
+        case RA_ATT_RESULT: {	//Reply to MSG3
+            Messages::AttestationMessage att_msg;
+            ret = att_msg.ParseFromString(v);
+            if (ret && att_msg.type() == RA_ATT_RESULT) {
+                s = this->handleAttestationResult(att_msg);
+                res.push_back(to_string(RA_APP_ATT_OK));
+            }
+        }
+        break;
+        case RANDOM_RESPONSE: {	//Execute Random Response
+            Messages::SecretMessage sec_msg;
+            ret = sec_msg.ParseFromString(v);
+            if (ret && sec_msg.type() == RANDOM_RESPONSE) {
+                s = this->handleRandomResponse(sec_msg);
+                res.push_back(to_string(RANDOM_RESPONSE_OK));
+            }
+        }
+        break;
+        default:
+            Log("Unknown type: %d", type, log::error);
+            break;
+        }
 
-    res.push_back(s);
+        res.push_back(s);
+    } else { 	//after handshake
+        res.push_back(to_string(INIT_REQUEST));
+        res.push_back(this->prepareVerificationRequest());
+    }
 
     return res;
 }

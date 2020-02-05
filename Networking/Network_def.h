@@ -4,6 +4,7 @@
 #define MAX_VERIFICATION_RESULT 2
 
 typedef enum _ra_msg_types {
+    INIT_REQUEST,
     RA_MSG0,
     RA_MSG1,
     RA_MSG2,
