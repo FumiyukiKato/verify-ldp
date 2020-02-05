@@ -290,11 +290,13 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
 void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
     Log("assemble");
     private_data_msg_t *p_private_data_msg = NULL;
-    p_private_data_msg = (private_data_msg_t *)malloc(sizeof(private_data_msg_t));
+    
     Log("assemble2");
     int total_size = msg.size() + msg.result_size();
+    p_private_data_msg = (private_data_msg_t *)malloc(total_size);
     memset(p_private_data_msg, 0, total_size);
     Log("assemble3");
+
     p_private_data_msg->secret.payload_size = msg.result_size();
 
     for (int i=0; i<12; i++)
@@ -383,6 +385,12 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
 
     sgx_ec_key_128bit_t sk_key;
     uint8_t response_data;
+    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
+        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
+
+    for (int i=0; i<16; i++)
+      Log("tag is: %u", p_private_data_msg->secret.payload_tag[i]);
+    
     ret = random_response(this->enclave->getID(),
                                 &status,
                                 this->enclave->getContext(),
@@ -396,11 +404,11 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
                                 &response_data);
 
     if (SGX_SUCCESS != ret) {
-        Log("Error, random_response is failed", log::error);
+        Log("Error, random_response is failed1", log::error);
         print_error_message(ret);
         return "";
     } else if (SGX_SUCCESS != status) {
-        Log("Error, random_response is failed", log::error);
+        Log("Error, random_response is failed2", log::error);
         print_error_message(status);
         return "";
     } else {

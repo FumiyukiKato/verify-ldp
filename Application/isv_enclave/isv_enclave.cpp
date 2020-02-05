@@ -353,10 +353,9 @@ sgx_status_t random_response(
                                          0,
                                          (const sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
 
-        if (SGX_SUCCESS == ret) {
-            ret = SGX_ERROR_UNEXPECTED;
+        if (SGX_SUCCESS != ret)
             break;
-        }
+
         *response_data = decrypted[0];
         int status = random_response_mechanism(epsilon, response_data);
         if (status != 1) {
