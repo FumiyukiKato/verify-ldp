@@ -575,7 +575,12 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
     uint32_t private_data_msg_size;
     sp_private_data_t sp_private_data;
     sp_open_data_t sp_open_data;
+
+    p_private_data_msg = (private_data_msg_t *)malloc(sizeof(private_data_msg_t));
+    memset(p_private_data_msg, 0, sizeof(private_data_msg_t));
+    
     memset(&sp_private_data, 0, sizeof(sp_private_data_t));
+    memset(&sp_open_data, 0, sizeof(sp_private_data_t));
 
     // read private data from file
     char *data_buf_char;
