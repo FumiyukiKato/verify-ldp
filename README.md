@@ -1,6 +1,7 @@
 # verify-ldp
 This repository is forked from this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
 
+
 You register Intel Attestation Service and get nesessary information to commuticate with IAS.
 
 You have to set following env variables.
@@ -13,3 +14,5 @@ static const char *ias_crt  = std::getenv("CA"); // location of a trusted Attest
 static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
 static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 ```
+
+This supports IAS v3 API and v2.8 sdk.
