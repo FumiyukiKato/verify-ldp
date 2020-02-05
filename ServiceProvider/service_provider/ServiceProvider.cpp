@@ -579,20 +579,23 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     // read private data from file
     char *data_buf_char;
+    Log("read private data");
     ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
     uint8_t data_buf_uint = stoi(string(data_buf_char));
     sp_private_data.data = data_buf_uint;
 
     // read privacy parameter from file
     char *privacy_buf_char;
+    Log("read privacy param");
     ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
     double privacy_buf_double = stod(string(privacy_buf_char));
     sp_open_data.privacy_parameter = privacy_buf_double;
 
     do {
         // Respond the client with the results of the attestation.
+        Log("sizeof");
         private_data_msg_size = sizeof(private_data_msg_t);
-
+        Log("dainyu");
         p_private_data_msg->private_data = sp_private_data;
         p_private_data_msg->open_data    = sp_open_data;
 
