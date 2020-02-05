@@ -15,4 +15,20 @@ static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
 static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 ```
 
-This supports IAS v3 API and v2.8 sdk.
+This supports IAS v3 API and v2.8 sgxsdk.
+
+## execution
+bulid
+```
+./make
+```
+
+server
+```
+./run-server
+```
+
+client
+```
+./run-client
+```
