@@ -1,10 +1,21 @@
 # verify-ldp
-This repository is forked from this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
+This repository is based on this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
 
+## description
 
-You register Intel Attestation Service and get nesessary information to commuticate with IAS.
+Overview, Client(Service Provider) sends their private data to Server(ISV) on TLS session.
 
-You have to set following env variables.
+Client verify Server's runtime and program integirity using [remote attestation](https://software.intel.com/en-us/articles/code-sample-intel-software-guard-extensions-remote-attestation-end-to-end-example).
+
+Client send encrypted private data to Server, and in SGX of Server side, data is perturbed with Randomized Response.
+
+## execution
+Supporting IAS v3 API and v2.8 sgxsdk
+I use my fork sdk https://github.com/FumiyukiKato/linux-sgx
+
+You have to register Intel Attestation Service and get nesessary information to commuticate with IAS.
+
+Set following env variables.
 
 ```c++
 static string server_crt    = std::getenv("SERVER_CRT"); // certificate for the HTTPS connection between the SP and the App
@@ -15,9 +26,7 @@ static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
 static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 ```
 
-This supports IAS v3 API and v2.8 sgxsdk.
 
-## execution
 bulid
 ```
 ./make
