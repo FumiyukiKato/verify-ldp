@@ -46,7 +46,7 @@ else
 endif
 
 App_Cpp_Files := isv_app/isv_app.cpp ../Util/LogBase.cpp ../Networking/NetworkManager.cpp \
-../Networking/Session.cpp ../Networking/Client.cpp ../Networking/Server.cpp isv_app/VerificationManager.cpp ../Networking/NetworkManagerClient.cpp \
+../Networking/Session.cpp ../Networking/Client.cpp ../Networking/Server.cpp isv_app/VerificationManager.cpp ../Networking/NetworkManagerServer.cpp \
 ../GoogleMessages/Messages.pb.cpp ../Networking/AbstractNetworkOps.cpp ../Util/UtilityFunctions.cpp ../WebService/WebService.cpp \
 ../Util/Base64.cpp 
 
