@@ -13,7 +13,7 @@ Client send encrypted private data to Server, and in SGX of Server side, data is
 Supporting IAS v3 API and v2.8 sgxsdk
 I use my fork sdk https://github.com/FumiyukiKato/linux-sgx
 
-You have to set up your Intel SGX and sgxsdk and register Intel Attestation Service and get nesessary information to commuticate with IAS.
+You have to set up your processor with Intel SGX and sgxsdk and register Intel Attestation Service and get nesessary information to commuticate with IAS.
 
 
 Set following env variables.
