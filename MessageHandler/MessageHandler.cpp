@@ -288,11 +288,13 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
 }
 
 void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
+    Log("assemble");
     private_data_msg_t *p_private_data_msg = NULL;
-
-    int total_size = msg.size();
+    p_private_data_msg = (private_data_msg_t *)malloc(sizeof(private_data_msg_t));
+    Log("assemble2");
+    int total_size = msg.size() + msg.result_size();
     memset(p_private_data_msg, 0, total_size);
-
+    Log("assemble3");
     p_private_data_msg->secret.payload_size = msg.result_size();
 
     for (int i=0; i<12; i++)
@@ -306,7 +308,7 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     }
 
     p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-
+    Log("assemble4");
     *pp_sec_msg = p_private_data_msg;
 }
 
@@ -375,7 +377,7 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
 
     private_data_msg_t *p_private_data_msg = NULL;
     this->assembleSecretMessage(msg, &p_private_data_msg);
-
+    Log("assemble done");
     sgx_status_t status;
     sgx_status_t ret;
 

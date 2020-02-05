@@ -61,8 +61,8 @@ string VerificationManager::handleMSG0(Messages::MessageMsg0 msg) {
     } else {
         Log("Termination received!");
     }
-    
-    return "";    
+
+    return "";
 }
 
 

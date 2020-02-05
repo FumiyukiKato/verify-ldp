@@ -578,9 +578,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     p_private_data_msg = (private_data_msg_t *)malloc(sizeof(private_data_msg_t));
     memset(p_private_data_msg, 0, sizeof(private_data_msg_t));
-    
+
     memset(&sp_private_data, 0, sizeof(sp_private_data_t));
-    memset(&sp_open_data, 0, sizeof(sp_private_data_t));
+    memset(&sp_open_data, 0, sizeof(sp_open_data_t));
 
     // read private data from file
     char *data_buf_char;
@@ -605,7 +605,7 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         p_private_data_msg->open_data    = sp_open_data;
 
         Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
-        Log("Client raw data is %u", p_private_data_msg->private_data.data);
+        Log("Client raw data is %u", unsigned(p_private_data_msg->private_data.data));
 
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
@@ -630,6 +630,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
         }
 
     } while(0);
+
+    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
+        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
 
     if (ret) {
         return -1;
