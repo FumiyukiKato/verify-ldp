@@ -31,6 +31,7 @@ private:
     string createInitMsg(int type, string msg);
     string handleAppAttOk(Messages::InitialMessage msg);
     string handleRROk(Messages::InitialMessage msg);
+    string handleInitRequest(Messages::InitialMessage init_msg);
 
 private:
     static VerificationManager* instance;
