@@ -384,7 +384,7 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
     uint8_t response_data;
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag[i], 16));
+    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
 
     ret = random_response(this->enclave->getID(),
                                 &status,

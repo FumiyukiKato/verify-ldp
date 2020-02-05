@@ -631,7 +631,7 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("encrypted payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag[i], 16));
+    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
 
     if (ret) {
         return -1;
