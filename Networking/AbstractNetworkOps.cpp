@@ -39,9 +39,9 @@ void AbstractNetworkOps::read() {
         if ((boost::asio::error::eof == ec) || (boost::asio::error::connection_reset == ec)) {
             Log("Connection has been closed by remote host");
         } else if (ec.value() == SOCKET_SHORT_READ_ERROR) {
-	    // handle short read error when finising protocol
-	    // https://github.com/boostorg/beast/issues/1123
-      	    Log("Connection has been closed by remote host");
+            // handle short read error when finising protocol
+            // https://github.com/boostorg/beast/issues/1123
+            Log("Connection has been closed by remote host");
 	} else {
             Log("Unknown socket error while reading occured!", log::error);
         } 

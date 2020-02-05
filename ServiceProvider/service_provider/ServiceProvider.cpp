@@ -435,6 +435,9 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
             break;
         }
 
+        string mrenclave = ByteArrayToString(p_quote->report_body.mr_enclave.m, SGX_HASH_SIZE);
+        string mrsigner = ByteArrayToString(p_quote->report_body.mr_signer.m, SGX_HASH_SIZE);
+
         Log("Atestation Report:");
         Log("\tid: %s", attestation_report.id);
         Log("\tstatus: %d", attestation_report.status);
@@ -446,11 +449,34 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
         Log("\tSignature Basename: %s", ByteArrayToNoHexString(p_quote->basename.name, 32));
         Log("\tattributes.flags: 0x%0lx", p_quote->report_body.attributes.flags);
         Log("\tattributes.xfrm: 0x%0lx", p_quote->report_body.attributes.xfrm);
-        Log("\tmr_enclave: %s", ByteArrayToString(p_quote->report_body.mr_enclave.m, SGX_HASH_SIZE));
-        Log("\tmr_signer: %s", ByteArrayToString(p_quote->report_body.mr_signer.m, SGX_HASH_SIZE));
+        Log("\tmr_enclave: %s", mrenclave);
+        Log("\tmr_signer: %s", mrsigner);
         Log("\tisv_prod_id: 0x%0x", p_quote->report_body.isv_prod_id);
         Log("\tisv_svn: 0x%0x", p_quote->report_body.isv_svn);
 
+        // read measurement enclave from file and verify MRENCLAVE
+        char *mrenclave_buf_char;
+        Log("read registered mrenclave from %s", Settings::encalve_measurement_path);
+        ReadFileToBuffer(Settings::encalve_measurement_path, &mrenclave_buf_char);
+        string mrenclave_buf_string = string(mrenclave_buf_char);
+        Log("verify MRENCLAVE...");
+        if (mrenclave != mrenclave_buf_string) {
+            Log("MRENCLAVE is changed");
+            ret = SP_INTEGRITY_FAILED;
+            break;
+        }
+
+        // read measurement signer from file and verify MRSIGNER (Actually, it is included in MRENCLAVE)
+        char *mrsigner_buf_char;
+        Log("read registered mrsiner from %s", Settings::signer_measurement_path);
+        ReadFileToBuffer(Settings::signer_measurement_path, &mrsigner_buf_char);
+        string mrsigner_buf_string = string(mrsigner_buf_char);
+        Log("verify MRSIGNER...");
+        if (mrsigner != mrsigner_buf_string) {
+            Log("MRSIGNER is changed");
+            ret = SP_INTEGRITY_FAILED;
+            break;
+        }
 
         // Respond the client with the results of the attestation.
         att_result_msg_size = sizeof(sample_ra_att_result_msg_t);

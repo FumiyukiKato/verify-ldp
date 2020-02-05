@@ -22,6 +22,8 @@ namespace Settings {
 
     static string client_private_data_path = "/home/fumiyuki/workspace/verify-ldp/private.dat";
     static string client_privacy_path      = "/home/fumiyuki/workspace/verify-ldp/privacy.dat";
+    static string encalve_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrenclave.dat";
+    static string signer_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrsigner.dat";
 }
 
 #endif

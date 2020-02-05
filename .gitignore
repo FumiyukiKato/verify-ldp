@@ -21,3 +21,6 @@ isv_enclave_t.*
 !ServiceProvider/sample_libcrypto/libsample_libcrypto.so
 
 setting
+
+mrenclave.dat
+mrsigner.dat
