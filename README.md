@@ -1,35 +1,44 @@
-# Linux SGX remote attestation
-Example of a remote attestation with Intel's SGX including the communication with IAS.
+# verify-ldp
+This repository is based on this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
 
-The code requires the installation of Intel SGX [here](https://github.com/01org/linux-sgx) and 
-the SGX driver [here](https://github.com/01org/linux-sgx-driver). Furthermore, also a developer account
-for the usage of IAS has be registered [Deverloper account](https://software.intel.com/en-us/sgx).
-After the registration with a certificate (can be self-signed for development purposes), Intel will
-respond with a SPID which is needed to communicate with IAS. 
+## description
 
-The code consists of two separate programs, the ServiceProvider and the Application.
-The message exchange over the network is performed using Google Protocol Buffers. 
+Overview, Client(Service Provider) sends their private data to Server(ISV) on TLS session.
 
-## Installation
+Client verify Server's runtime and program integirity using [remote attestation](https://software.intel.com/en-us/articles/code-sample-intel-software-guard-extensions-remote-attestation-end-to-end-example).
 
-Before running the code, some settings have to be set in the ```GeneralSettings.h``` file:
-* The application port and IP 
-* A server certificate and private key are required for the SSL communication between the SP and the Application (which can be self-signed)<br /> 
-e.g. ```openssl req -x509 -nodes -newkey rsa:4096 -keyout server.key -out server.crt -days 365```
-* The SPID provided by Intel when registering for the developer account
-* The certificate sent to Intel when registering for the developer account
-* IAS Rest API url (should stay the same)
+Client send encrypted private data to Server, and in SGX of Server side, data is perturbed with Randomized Response.
 
-To be able to run the above code some external libraries are needed:
+## execution
+Supporting IAS v3 API and v2.8 sgxsdk
+I use my fork sdk https://github.com/FumiyukiKato/linux-sgx
 
-* Google Protocol Buffers (should already be installed with the SGX SDK package) otherwise install ```libprotobuf-dev```, ```libprotobuf-c0-dev``` and ```protobuf-compiler```
-
-All other required libraries can be installed with the following command
-```sudo apt-get install libboost-thread-dev libboost-system-dev curl libcurl4-openssl-dev libssl-dev liblog4cpp5-dev libjsoncpp-dev```
+You have to set up your processor with Intel SGX and sgxsdk and register Intel Attestation Service and get nesessary information to commuticate with IAS.
 
 
-After the installation of those dependencies, the code can be compiled with the following commands:<br/>
-```cd ServiceProvider```<br />
-```make```<br />
-```cd ../Application```<br />
-```make SGX_MODE=HW SGX_PRERELEASE=1```
+Set following env variables.
+
+```c++
+static string server_crt    = std::getenv("SERVER_CRT"); // certificate for the HTTPS connection between the SP and the App
+static string server_key    = std::getenv("SERVER_KEY"); // private key for the HTTPS connection
+static string spid          = std::getenv("RA_SPID"); // SPID provided by Intel after registration for the IAS service
+static const char *ias_crt  = std::getenv("CA"); // location of a trusted Attestation Report Signing CA Certificate
+static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
+static string secondary_key = std::getenv("AS_SECONDARY_KEY");
+```
+
+
+bulid
+```
+./make
+```
+
+server
+```
+./run-server
+```
+
+client
+```
+./run-client
+```
