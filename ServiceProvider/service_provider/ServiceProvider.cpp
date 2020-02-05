@@ -586,8 +586,8 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
     // read privacy parameter from file
     char *privacy_buf_char;
     ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
-    double privacy_buf_uint = stod(string(privacy_buf_char));
-    sp_open_data.privacy_parameter = privacy_buf_uint;
+    double privacy_buf_double = stod(string(privacy_buf_char));
+    sp_open_data.privacy_parameter = privacy_buf_double;
 
     do {
         // Respond the client with the results of the attestation.
