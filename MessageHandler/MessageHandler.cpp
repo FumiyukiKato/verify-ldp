@@ -288,14 +288,11 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
 }
 
 void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
-    Log("assemble");
     private_data_msg_t *p_private_data_msg = NULL;
-    
-    Log("assemble2");
+
     int total_size = msg.size() + msg.result_size();
     p_private_data_msg = (private_data_msg_t *)malloc(total_size);
     memset(p_private_data_msg, 0, total_size);
-    Log("assemble3");
 
     p_private_data_msg->secret.payload_size = msg.result_size();
 
@@ -310,7 +307,8 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     }
 
     p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-    Log("assemble4");
+    Log("Secret Message pp %lf", msg.privacy_parameter());
+
     *pp_sec_msg = p_private_data_msg;
 }
 
@@ -379,7 +377,6 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
 
     private_data_msg_t *p_private_data_msg = NULL;
     this->assembleSecretMessage(msg, &p_private_data_msg);
-    Log("assemble done");
     sgx_status_t status;
     sgx_status_t ret;
 
@@ -387,10 +384,8 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
     uint8_t response_data;
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
+    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag[i], 16));
 
-    for (int i=0; i<16; i++)
-      Log("tag is: %u", p_private_data_msg->secret.payload_tag[i]);
-    
     ret = random_response(this->enclave->getID(),
                                 &status,
                                 this->enclave->getContext(),
@@ -418,6 +413,7 @@ string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
     SafeFree(p_private_data_msg);
 
     // Get data
+    Log("Peturbation is done");
     Log("Client privacy parameter is %lf", p_private_data_msg->open_data.privacy_parameter);
     Log("Client noised data is %u", response_data);
 

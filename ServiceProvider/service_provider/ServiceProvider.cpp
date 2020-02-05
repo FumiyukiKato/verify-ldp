@@ -584,23 +584,21 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     // read private data from file
     char *data_buf_char;
-    Log("read private data");
+    Log("read private data from %s", Settings::client_private_data_path);
     ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
     uint8_t data_buf_uint = stoi(string(data_buf_char));
     sp_private_data.data = data_buf_uint;
 
     // read privacy parameter from file
     char *privacy_buf_char;
-    Log("read privacy param");
+    Log("read privacy parameter from %s", Settings::client_privacy_path);
     ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
     double privacy_buf_double = stod(string(privacy_buf_char));
     sp_open_data.privacy_parameter = privacy_buf_double;
 
     do {
         // Respond the client with the results of the attestation.
-        Log("sizeof");
         private_data_msg_size = sizeof(private_data_msg_t);
-        Log("dainyu");
         p_private_data_msg->private_data = sp_private_data;
         p_private_data_msg->open_data    = sp_open_data;
 
@@ -631,10 +629,9 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     } while(0);
 
-    for (int i=0; i<p_private_data_msg->secret.payload_size + 2; i++)
-        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    for (int i=0; i<16; i++)
-        Log("tag is: %u", p_private_data_msg->secret.payload_tag[i]);
+    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
+        Log("encrypted payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
+    Log("tag is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag[i], 16));
 
     if (ret) {
         return -1;
