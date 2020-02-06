@@ -324,44 +324,48 @@ int random_response_mechanism(double epsilon, uint8_t *data) {
 
 sgx_status_t random_response(
     sgx_ra_context_t context,
-    uint8_t *p_secret,
-    uint32_t secret_size,
-    uint8_t *p_gcm_mac,
-    uint32_t max_verification_length,
-    uint8_t *p_ret,
-    sgx_ec_key_128bit_t *sk_key,
-    double epsilon,
-    uint8_t *response_data) {
+    uint8_t *data,
+    uint32_t data_size,
+    uint8_t *p_dst,
+    const uint8_t *aes_gcm_iv,
+    uint32_t aes_gcm_iv_len,
+    const uint8_t *p_aad,
+    uint32_t add_len,
+    double privacy_param,
+    uint8_t *p_gcm_mac) {
     sgx_status_t ret = SGX_SUCCESS;
+    sgx_ec_key_128bit_t sk_key;
 
     do {
-        ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, sk_key);
+        /* derive sk key */
+        ret = sgx_ra_get_keys(context, SGX_RA_KEY_SK, &sk_key);
         if (SGX_SUCCESS != ret) {
             break;
         }
 
-        uint8_t *decrypted = (uint8_t*) malloc(sizeof(uint8_t) * secret_size);
-        uint8_t aes_gcm_iv[12] = {0};
-
-        ret = sgx_rijndael128GCM_decrypt(sk_key,
-                                         p_secret,
-                                         secret_size,
-                                         decrypted,
-                                         &aes_gcm_iv[0],
-                                         12,
-                                         NULL,
-                                         0,
-                                         (const sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
-
-        if (SGX_SUCCESS != ret)
-            break;
-
-        *response_data = decrypted[0];
-        int status = random_response_mechanism(epsilon, response_data);
+        /* apply mechanism */
+        int status = random_response_mechanism(privacy_param, data);
         if (status != 1) {
             ret = SGX_ERROR_UNEXPECTED;
             break;
         }
+
+        uint8_t *encrypted = (uint8_t*) malloc(sizeof(uint8_t) * data_size);
+
+        /* encryption */
+        ret = sgx_rijndael128GCM_encrypt(&sk_key,
+                                         data,
+                                         data_size,
+                                         encrypted,
+                                         aes_gcm_iv,
+                                         aes_gcm_iv_len,
+                                         p_aad,
+                                         add_len,
+                                         (const sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
+
+        if (SGX_SUCCESS != ret)
+            break;
+        *p_dst = encrypted;
 
     } while(0);
 

@@ -307,8 +307,6 @@ void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_
     }
 
     p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-    Log("Secret Message pp direct %lf", msg.privacy_parameter());
-    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
 
     *pp_sec_msg = p_private_data_msg;
 }
@@ -366,11 +364,80 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         Log("Send attestation okay");
     }
 
-    Messages::InitialMessage ret_msg;
-    ret_msg.set_type(RA_APP_ATT_OK);
-    ret_msg.set_size(0);
+    /* random response */
+    uint8_t *encrypted_data;
 
-    return nm->serialize(ret_msg);
+    // read private data from file
+    char *data_buf_char;
+    Log("read private data from %s", Settings::client_private_data_path);
+    ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
+    uint8_t data_buf_uint = stoi(string(data_buf_char));
+    uint32_t data_buf_uint_size = sizeof(data_buf_uint);
+
+    // read privacy parameter from file
+    char *privacy_buf_char;
+    Log("read privacy parameter from %s", Settings::client_privacy_path);
+    ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
+    double privacy_buf_double = stod(string(privacy_buf_char));
+
+    Log("Client data information:");
+    Log("\tprivacy parameter: %lf", privacy_buf_double);
+    Log("\traw data: %u", unsigned(data_buf_uint));
+
+    uint8_t aes_gcm_iv[ISV_IV_SIZE] = {0}; // initialized vector
+    uint8_t gcm_tag[ISV_GCM_TAG_SIZE];
+    uint8_t reserved[12];
+
+    ret = random_response(this->enclave->getID(),
+                            &status,
+                            this->enclave->getContext(),
+                            &data_buf_uint, // plain text
+                            data_buf_uint_size, // length of text
+                            encrypted_data, // randomized
+                            aes_gcm_iv,
+                            ISV_IV_SIZE,
+                            NULL,
+                            0,
+                            privacy_buf_double,
+                            &gcm_tag);
+
+    if (SGX_SUCCESS != ret) {
+        Log("Error, encryption fail", log::error);
+        print_error_message(ret);
+        return "";
+    }
+
+    /* Log */
+    for (int i=0; i<data_buf_uint_size; i++)
+        Log("encrypted payload: %u", unsigned(encrypted_data[i]));
+    Log("aes gcm mac is: %s", ByteArrayToNoHexString(gcm_tag, 16));
+
+
+    /* set Secret Message */
+    Messages::SecretMessage sec_msg;
+    sec_msg.set_type(RA_APP_ATT_OK);
+
+    uint32_t msg_size = sizeof(private_data_msg_t);
+    sec_msg->set_size(msg_size);
+
+    // encrypted private data
+    for (int i=0; i<data_buf_uint_size; i++)
+        sec_msg->add_encrypted_content(encrypted_data[i]);
+
+    // plain text size
+    sec_msg->set_result_size(data_buf_uint_size);
+
+    for (int i=0; i<12; i++)
+        sec_msg->add_reserved(reserved[i]);
+
+    // mac of aesgcm
+    for (int i=0; i<ISV_GCM_TAG_SIZE; i++)
+        sec_msg->add_payload_tag(gcm_tag[i]);
+
+    // priavacy parameter to be opened
+    sec_msg->set_privacy_parameter(privacy_buf_double);
+
+    return nm->serialize(sec_msg);
 }
 
 string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
@@ -519,15 +586,6 @@ vector<string> MessageHandler::incomingHandler(string v, int type) {
             if (ret && att_msg.type() == RA_ATT_RESULT) {
                 s = this->handleAttestationResult(att_msg);
                 res.push_back(to_string(RA_APP_ATT_OK));
-            }
-        }
-        break;
-        case RANDOM_RESPONSE: {	//Execute Random Response
-            Messages::SecretMessage sec_msg;
-            ret = sec_msg.ParseFromString(v);
-            if (ret && sec_msg.type() == RANDOM_RESPONSE) {
-                s = this->handleRandomResponse(sec_msg);
-                res.push_back(to_string(RANDOM_RESPONSE_OK));
             }
         }
         break;

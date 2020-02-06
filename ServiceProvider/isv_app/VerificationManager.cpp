@@ -108,27 +108,17 @@ string VerificationManager::handleMSG3(Messages::MessageMSG3 msg) {
 }
 
 
-string VerificationManager::handleAppAttOk(Messages::InitialMessage msg) {
+string VerificationManager::handleAppAttOk(Messages::SecretMessage msg) {
     Log("APP attestation result received");
-    Log("Sending Private Data");
+    Log("Decrypting Private Data");
 
-    Messages::SecretMessage sec_msg;
-    sec_msg.set_type(RANDOM_RESPONSE);
-
-    int ret = this->sp->proc_private_data(msg, &sec_msg);
+    int ret = this->sp->proc_private_data(msg);
     if (ret == -1) {
         Log("Error, failed to prepare private data");
     } else {
-        Log("private data is properly encrypted");
-        return nm->serialize(sec_msg);
+        Log("private data is properly decrypted");
     }
 
-    return "";
-}
-
-string VerificationManager::handleRROk(Messages::InitialMessage msg) {
-    Log("Randomized Response is OK");
-    refreshServiceProvider();
     return "";
 }
 
@@ -195,22 +185,11 @@ vector<string> VerificationManager::incomingHandler(string v, int type) {
     }
     break;
     case RA_APP_ATT_OK: {
-        Messages::InitialMessage ok_msg;
-        ret = ok_msg.ParseFromString(v);
+        Messages::SecretMessage sec_msg;
+        ret = sec_msg.ParseFromString(v);
         if (ret) {
-            if (ok_msg.type() == RA_APP_ATT_OK) {
-                s = this->handleAppAttOk(ok_msg);
-                res.push_back(to_string(RANDOM_RESPONSE));
-            }
-        }
-    }
-    break;
-    case RANDOM_RESPONSE_OK: {
-        Messages::InitialMessage ok_msg;
-        ret = ok_msg.ParseFromString(v);
-        if (ret) {
-            if (ok_msg.type() == RANDOM_RESPONSE_OK) {
-                this->handleRROk(ok_msg);
+            if (sec_msg.type() == RA_APP_ATT_OK) {
+                this->handleAppAttOk(sec_msg);
             }
         }
     }

@@ -29,8 +29,7 @@ private:
     string handleMSG1(Messages::MessageMSG1 msg);
     string handleMSG3(Messages::MessageMSG3 msg);
     string createInitMsg(int type, string msg);
-    string handleAppAttOk(Messages::InitialMessage msg);
-    string handleRROk(Messages::InitialMessage msg);
+    string handleAppAttOk(Messages::SecretMessage msg);
     string handleInitRequest(Messages::InitialMessage init_msg);
     void refreshServiceProvider();
 

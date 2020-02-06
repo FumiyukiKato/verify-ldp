@@ -19,6 +19,9 @@
 using namespace std;
 using namespace util;
 
+#define ISV_IV_SIZE 12
+#define ISV_GCM_TAG_SIZE 16
+
 class MessageHandler {
 
 public:
