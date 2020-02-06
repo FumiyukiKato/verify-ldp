@@ -318,6 +318,30 @@ sgx_ra_msg3_t* ServiceProvider::assembleMSG3(Messages::MessageMSG3 msg) {
     return p_msg3;
 }
 
+private_data_msg_t* ServiceProvider::assembleSecretMessage(Messages::SecretMessage msg) {
+    private_data_msg_t *p_private_data_msg = NULL;
+
+    int total_size = msg.size() + msg.result_size();
+    p_private_data_msg = (private_data_msg_t *)malloc(total_size);
+    memset(p_private_data_msg, 0, total_size);
+
+    p_private_data_msg->secret.payload_size = msg.result_size();
+
+    for (int i=0; i<12; i++)
+        p_private_data_msg->secret.reserved[i] = msg.reserved(i);
+
+    for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
+        p_private_data_msg->secret.payload_tag[i] = msg.payload_tag(i);
+
+    for (int i=0; i<msg.result_size(); i++) {
+        p_private_data_msg->secret.payload[i] = (uint8_t)msg.encrypted_content(i);
+    }
+
+    p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
+
+    return p_private_data_msg;
+}
+
 
 
 // Process remote attestation message 3
@@ -595,54 +619,28 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
 }
 
 // Process preparing private secret data
-int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::SecretMessage *sec_msg) {
+int ServiceProvider::proc_private_data(Messages::SecretMessage msg) {
     int ret = SAMPLE_SUCCESS;
     private_data_msg_t *p_private_data_msg = NULL;
-    uint32_t private_data_msg_size;
-    sp_private_data_t sp_private_data;
-    sp_open_data_t sp_open_data;
+    uint8_t *decrypted_data;
 
-    p_private_data_msg = (private_data_msg_t *)malloc(sizeof(private_data_msg_t));
-    memset(p_private_data_msg, 0, sizeof(private_data_msg_t));
-
-    memset(&sp_private_data, 0, sizeof(sp_private_data_t));
-    memset(&sp_open_data, 0, sizeof(sp_open_data_t));
-
-    // read private data from file
-    char *data_buf_char;
-    Log("read private data from %s", Settings::client_private_data_path);
-    ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
-    uint8_t data_buf_uint = stoi(string(data_buf_char));
-    sp_private_data.data = data_buf_uint;
-
-    // read privacy parameter from file
-    char *privacy_buf_char;
-    Log("read privacy parameter from %s", Settings::client_privacy_path);
-    ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
-    double privacy_buf_double = stod(string(privacy_buf_char));
-    sp_open_data.privacy_parameter = privacy_buf_double;
+    p_private_data_msg = assembleSecretMessage(msg);
+    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
+        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
+    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
+    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
 
     do {
-        // Respond the client with the results of the attestation.
-        private_data_msg_size = sizeof(private_data_msg_t);
-        p_private_data_msg->private_data = sp_private_data;
-        p_private_data_msg->open_data    = sp_open_data;
-
-        Log("Client data information:");
-        Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
-        Log("\traw data: %u", unsigned(p_private_data_msg->private_data.data));
-
         // Generate shared secret and encrypt it with SK
         uint8_t aes_gcm_iv[SAMPLE_SP_IV_SIZE] = {0}; // initialized vector
 
-        // in AESGCM output size = input size?
-        // https://crypto.stackexchange.com/questions/26783/ciphertext-and-tag-size-and-iv-transmission-with-aes-in-gcm-mode/26787
-        p_private_data_msg->secret.payload_size = sizeof(p_private_data_msg->private_data.data);
+        // sample_rijndael128GCM_encrypt() can be used decryption process
+        // https://github.com/intel/linux-sgx/issues/257
         ret = sample_rijndael128GCM_encrypt(&g_sp_db.sk_key, // p_key
-                                            (const uint8_t*)&p_private_data_msg->private_data.data, // p_src
+                                            p_private_data_msg->secret.payload, // p_src
                                             p_private_data_msg->secret.payload_size, // p_len
-                                            p_private_data_msg->secret.payload, //p_dst
-                                            &aes_gcm_iv[0], //p_iv
+                                            decrypted_data, //p_dst
+                                            aes_gcm_iv, //p_iv
                                             SAMPLE_SP_IV_SIZE, // iv_len
                                             NULL, // p_add
                                             0, //add_len
@@ -656,30 +654,11 @@ int ServiceProvider::proc_private_data(Messages::InitialMessage msg, Messages::S
 
     } while(0);
 
-    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
-        Log("encrypted payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
+    Log("Decryption is done");
 
-    if (ret) {
-        return -1;
-    } else {
-        sec_msg->set_size(private_data_msg_size);
-        // encrypted private data
-        for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
-            sec_msg->add_encrypted_content(p_private_data_msg->secret.payload[i]);
-
-        // plain text size
-        sec_msg->set_result_size(p_private_data_msg->secret.payload_size);
-
-        for (int i=0; i<12; i++)
-            sec_msg->add_reserved(p_private_data_msg->secret.reserved[i]);
-        // mac of aesgcm
-        for (int i=0; i<16; i++)
-            sec_msg->add_payload_tag(p_private_data_msg->secret.payload_tag[i]);
-
-        // priavacy parameter to be opened
-        sec_msg->set_privacy_parameter(p_private_data_msg->open_data.privacy_parameter);
-    }
+    Log("Client data information:");
+    Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
+    Log("\trandomized data: %u", unsigned(decrypted_data[0]));
 
     return ret;
 }
