@@ -1,4 +1,4 @@
 #!/usr/bin/zsh
 
-cd ./Application
+cd ./ServiceProvider
 ./app
