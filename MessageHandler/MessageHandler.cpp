@@ -287,29 +287,7 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
     *pp_att_msg = p_att_result_msg_full;
 }
 
-void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
-    private_data_msg_t *p_private_data_msg = NULL;
 
-    int total_size = msg.size() + msg.result_size();
-    p_private_data_msg = (private_data_msg_t *)malloc(total_size);
-    memset(p_private_data_msg, 0, total_size);
-
-    p_private_data_msg->secret.payload_size = msg.result_size();
-
-    for (int i=0; i<12; i++)
-        p_private_data_msg->secret.reserved[i] = msg.reserved(i);
-
-    for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
-        p_private_data_msg->secret.payload_tag[i] = msg.payload_tag(i);
-
-    for (int i=0; i<msg.result_size(); i++) {
-        p_private_data_msg->secret.payload[i] = (uint8_t)msg.encrypted_content(i);
-    }
-
-    p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-
-    *pp_sec_msg = p_private_data_msg;
-}
 
 string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg) {
     Log("Received Attestation result");
@@ -439,62 +417,6 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
 
     return nm->serialize(sec_msg);
 }
-
-string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
-    Log("Received secret data");
-
-    private_data_msg_t *p_private_data_msg = NULL;
-    this->assembleSecretMessage(msg, &p_private_data_msg);
-    sgx_status_t status;
-    sgx_status_t ret;
-
-    sgx_ec_key_128bit_t sk_key;
-    uint8_t response_data;
-    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
-        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
-    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
-
-    ret = random_response(this->enclave->getID(),
-                                &status,
-                                this->enclave->getContext(),
-                                p_private_data_msg->secret.payload, // cipher text
-                                p_private_data_msg->secret.payload_size, // length of text to be decrypted
-                                p_private_data_msg->secret.payload_tag, // mac
-                                MAX_VERIFICATION_RESULT,
-                                NULL,
-                                &sk_key,
-                                p_private_data_msg->open_data.privacy_parameter,
-                                &response_data);
-
-    if (SGX_SUCCESS != ret) {
-        Log("Error, random_response is failed1", log::error);
-        print_error_message(ret);
-        return "";
-    } else if (SGX_SUCCESS != status) {
-        Log("Error, random_response is failed2", log::error);
-        print_error_message(status);
-        return "";
-    } else {
-        Log("Private Random Response has done.");
-    }
-
-    // Get data
-    Log("Peturbation is done");
-
-    Log("Client data information:");
-    Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
-    Log("\trandomized data: %u", unsigned(response_data));
-
-    SafeFree(p_private_data_msg);
-
-    Messages::InitialMessage ret_msg;
-    ret_msg.set_type(RANDOM_RESPONSE_OK);
-    ret_msg.set_size(0);
-
-    return nm->serialize(ret_msg);
-}
-
 
 
 string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {

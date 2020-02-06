@@ -61,7 +61,6 @@ public:
     int sp_ra_proc_msg1_req(Messages::MessageMSG1 msg1, Messages::MessageMSG2 *msg2);
     int sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::AttestationMessage *att_msg);
     sgx_ra_msg3_t* assembleMSG3(Messages::MessageMSG3 msg);
-    int sp_ra_proc_app_att_hmac(Messages::SecretMessage *new_msg, string hmac_key, string hmac_key_filename);
     int proc_private_data(Messages::SecretMessage msg);
     private_data_msg_t* ServiceProvider::assembleSecretMessage(Messages::SecretMessage msg);
 

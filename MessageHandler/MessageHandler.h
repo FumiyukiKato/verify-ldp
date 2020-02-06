@@ -47,8 +47,6 @@ private:
     string handleVerification();
     string generateMSG0();
     string createInitMsg(int type, string msg);
-    string handleRandomResponse(Messages::SecretMessage msg);
-    void assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg);
     string prepareVerificationRequest();
 
 protected:
