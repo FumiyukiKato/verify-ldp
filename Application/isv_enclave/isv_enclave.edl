@@ -13,7 +13,8 @@ enclave {
 													[in,size=message_size] uint8_t* message,
 													size_t message_size,
 													[in,size=mac_size] uint8_t* mac,
-													size_t mac_size);
+													size_t mac_size
+													);
 
         public sgx_status_t verify_secret_data(sgx_ra_context_t context,
 												[in,size=secret_size] uint8_t* p_secret,
@@ -21,17 +22,20 @@ enclave {
 												[in,count=16] uint8_t* gcm_mac,
 												uint32_t max_verification_length,
 												[out, count=16] uint8_t *p_ret,
-                                                [out] sgx_ec_key_128bit_t *sk_key);
+                                                [out] sgx_ec_key_128bit_t *sk_key
+												);
 
 		public sgx_status_t random_response(sgx_ra_context_t context,
-												[in,size=secret_size] uint8_t* p_secret,
+												[in,size=secret_size] uint8_t *plain_text,
 												uint32_t secret_size,
-												[in,count=16] uint8_t* gcm_mac,
-												uint32_t max_verification_length,
-												[out, count=16] uint8_t *p_ret,
-												[out] sgx_ec_key_128bit_t *sk_key,
+												[out, count=1] uint8_t *response_data,
+												[in, count=12] uint8_t *aes_gcm_iv,
+												uint32_t iv_size,
+												[in, count=0] uint8_t *p_add,
+												uint32_t add_len,
 												double epsilon,
-			                        			[out] uint8_t *response_data);
+												[in,count=16] uint8_t* gcm_mac
+			                        			);
     };
 
 };

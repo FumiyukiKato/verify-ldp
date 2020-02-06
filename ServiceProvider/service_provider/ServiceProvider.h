@@ -62,7 +62,7 @@ public:
     int sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::AttestationMessage *att_msg);
     sgx_ra_msg3_t* assembleMSG3(Messages::MessageMSG3 msg);
     int proc_private_data(Messages::SecretMessage msg);
-    private_data_msg_t* ServiceProvider::assembleSecretMessage(Messages::SecretMessage msg);
+    private_data_msg_t* assembleSecretMessage(Messages::SecretMessage msg);
 
 private:
     WebService *ws = NULL;

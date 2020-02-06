@@ -396,24 +396,24 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
     sec_msg.set_type(RA_APP_ATT_OK);
 
     uint32_t msg_size = sizeof(private_data_msg_t);
-    sec_msg->set_size(msg_size);
+    sec_msg.set_size(msg_size);
 
     // encrypted private data
     for (int i=0; i<data_buf_uint_size; i++)
-        sec_msg->add_encrypted_content(encrypted_data[i]);
+        sec_msg.add_encrypted_content(encrypted_data[i]);
 
     // plain text size
-    sec_msg->set_result_size(data_buf_uint_size);
+    sec_msg.set_result_size(data_buf_uint_size);
 
     for (int i=0; i<12; i++)
-        sec_msg->add_reserved(reserved[i]);
+        sec_msg.add_reserved(reserved[i]);
 
     // mac of aesgcm
     for (int i=0; i<ISV_GCM_TAG_SIZE; i++)
-        sec_msg->add_payload_tag(gcm_tag[i]);
+        sec_msg.add_payload_tag(gcm_tag[i]);
 
     // priavacy parameter to be opened
-    sec_msg->set_privacy_parameter(privacy_buf_double);
+    sec_msg.set_privacy_parameter(privacy_buf_double);
 
     return nm->serialize(sec_msg);
 }
