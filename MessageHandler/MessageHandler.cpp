@@ -377,7 +377,7 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
                             NULL,
                             0,
                             privacy_buf_double,
-                            &gcm_tag);
+                            gcm_tag);
 
     if (SGX_SUCCESS != ret) {
         Log("Error, encryption fail", log::error);

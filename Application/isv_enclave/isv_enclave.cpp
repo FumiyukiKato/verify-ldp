@@ -361,11 +361,11 @@ sgx_status_t random_response(
                                          aes_gcm_iv_len,
                                          p_aad,
                                          add_len,
-                                         (const sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
+                                         (sgx_aes_gcm_128bit_tag_t *) (p_gcm_mac));
 
         if (SGX_SUCCESS != ret)
             break;
-        *p_dst = encrypted;
+        p_dst = encrypted;
 
     } while(0);
 
