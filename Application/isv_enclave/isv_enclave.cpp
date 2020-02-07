@@ -365,7 +365,7 @@ sgx_status_t random_response(
 
         if (SGX_SUCCESS != ret)
             break;
-        p_dst = encrypted;
+        *p_dst = *encrypted;
 
     } while(0);
 

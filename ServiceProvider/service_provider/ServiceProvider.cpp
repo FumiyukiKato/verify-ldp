@@ -622,13 +622,14 @@ int ServiceProvider::sp_ra_proc_msg3_req(Messages::MessageMSG3 msg, Messages::At
 int ServiceProvider::proc_private_data(Messages::SecretMessage msg) {
     int ret = SAMPLE_SUCCESS;
     private_data_msg_t *p_private_data_msg = NULL;
-    uint8_t *decrypted_data;
 
     p_private_data_msg = assembleSecretMessage(msg);
     for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
         Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
     Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
     Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
+    
+    uint8_t decrypted_data[p_private_data_msg->secret.payload_size];
 
     do {
         // Generate shared secret and encrypt it with SK
@@ -647,7 +648,7 @@ int ServiceProvider::proc_private_data(Messages::SecretMessage msg) {
                                             &p_private_data_msg->secret.payload_tag); // p_out_mac
 
         if (SAMPLE_SUCCESS != ret) {
-            Log("Error, encryption fail", log::error);
+            Log("Error, dencryption failed", log::error);
             ret = SP_INTERNAL_ERROR;
             break;
         }

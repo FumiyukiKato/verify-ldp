@@ -23,4 +23,5 @@ isv_enclave_t.*
 setting
 
 mrenclave.dat
+mrenclave-server.dat
 mrsigner.dat

@@ -1,4 +1,5 @@
 #include "AbstractNetworkOps.h"
+#include "Network_def.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -38,13 +39,15 @@ void AbstractNetworkOps::read() {
     if (ec) {
         if ((boost::asio::error::eof == ec) || (boost::asio::error::connection_reset == ec)) {
             Log("Connection has been closed by remote host");
+            this->callback_handler("######################## finish on the way ###############################", FINISH_SESSION);
         } else if (ec.value() == SOCKET_SHORT_READ_ERROR) {
             // handle short read error when finising protocol
             // https://github.com/boostorg/beast/issues/1123
             Log("Connection has been closed by remote host");
-	} else {
+            this->callback_handler("######################## maybe complete if client ###########################", FINISH_SESSION);
+	    } else {
             Log("Unknown socket error while reading occured!", log::error);
-        } 
+        }
     } else {
         vector<string> incomming;
         boost::split(incomming, buffer_header, boost::is_any_of("@"));
@@ -111,6 +114,7 @@ void AbstractNetworkOps::process_read(char* buffer, int msg_size, int type) {
         send(msg);
     } else {
         Log("Close connection");
+        this->callback_handler("################### finish correctly #######################", FINISH_SESSION);
         this->saveCloseSocket();
     }
 }

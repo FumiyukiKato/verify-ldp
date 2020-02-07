@@ -38,9 +38,9 @@ typedef struct ms_random_response_t {
 	uint8_t* ms_data;
 	uint32_t ms_data_size;
 	uint8_t* ms_p_dst;
-	uint8_t* ms_aes_gcm_iv;
+	const uint8_t* ms_aes_gcm_iv;
 	uint32_t ms_aes_gcm_iv_len;
-	uint8_t* ms_p_add;
+	const uint8_t* ms_p_add;
 	uint32_t ms_add_len;
 	double ms_epsilon;
 	uint8_t* ms_gcm_mac;
@@ -128,7 +128,7 @@ sgx_status_t verify_secret_data(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_
 	return status;
 }
 
-sgx_status_t random_response(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_ra_context_t context, uint8_t* data, uint32_t data_size, uint8_t* p_dst, uint8_t* aes_gcm_iv, uint32_t aes_gcm_iv_len, uint8_t* p_add, uint32_t add_len, double epsilon, uint8_t* gcm_mac)
+sgx_status_t random_response(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_ra_context_t context, uint8_t* data, uint32_t data_size, uint8_t* p_dst, const uint8_t* aes_gcm_iv, uint32_t aes_gcm_iv_len, const uint8_t* p_add, uint32_t add_len, double epsilon, uint8_t* gcm_mac)
 {
 	sgx_status_t status;
 	ms_random_response_t ms;

@@ -194,6 +194,11 @@ vector<string> VerificationManager::incomingHandler(string v, int type) {
         }
     }
     break;
+    case FINISH_SESSION: {
+        Log(v);
+        refreshServiceProvider();
+    }
+    break;
     default:
         Log("Unknown type: %d", type, log::error);
         break;

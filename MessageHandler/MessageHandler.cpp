@@ -343,7 +343,6 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
     }
 
     /* random response */
-    uint8_t *encrypted_data;
 
     // read private data from file
     char *data_buf_char;
@@ -361,6 +360,8 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
     Log("Client data information:");
     Log("\tprivacy parameter: %lf", privacy_buf_double);
     Log("\traw data: %u", unsigned(data_buf_uint));
+
+    uint8_t encrypted_data[data_buf_uint];
 
     uint8_t aes_gcm_iv[ISV_IV_SIZE] = {0}; // initialized vector
     uint8_t gcm_tag[ISV_GCM_TAG_SIZE];
@@ -429,7 +430,6 @@ string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
             Log("Error, call enclave_init_ra fail", log::error);
         } else {
             Log("Call enclave_init_ra success");
-            Log("Sending msg1 to remote attestation service provider. Expecting msg2 back");
 
             auto ret = this->generateMSG1();
 
@@ -440,6 +440,7 @@ string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
         Log("MSG0 response status was not OK", log::error);
     }
 
+    Log("Sending msg1 to remote attestation service provider. Expecting msg2 back");
     return "";
 }
 
@@ -509,6 +510,10 @@ vector<string> MessageHandler::incomingHandler(string v, int type) {
                 s = this->handleAttestationResult(att_msg);
                 res.push_back(to_string(RA_APP_ATT_OK));
             }
+        }
+        break;
+        case FINISH_SESSION: {
+            Log(v);
         }
         break;
         default:
