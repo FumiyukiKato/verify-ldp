@@ -1,5 +1,6 @@
 # verify-ldp
 This repository is based on this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
+So, you should check some dependencies, but the repository maybe does not support SDK and API of latest version.
 
 ## description
 
@@ -8,6 +9,10 @@ Overview, Client(Service Provider) sends their private data to Server(ISV) on TL
 Client verify Server's runtime and program integirity using [remote attestation](https://software.intel.com/en-us/articles/code-sample-intel-software-guard-extensions-remote-attestation-end-to-end-example).
 
 Client send encrypted private data to Server, and in SGX of Server side, data is perturbed with Randomized Response.
+
+**That is more important model I think.**
+
+**And branch: `server-is-sp` is mode where Client is ISV with TEE and Server is SP without TEE.** 
 
 ## execution
 Supporting IAS v3 API and v2.8 sgxsdk
@@ -27,6 +32,14 @@ static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
 static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 ```
 
+You have to set mrenclave value of `sgx_report_t` and mrsigner value because they should be verified.
+
+But I dont know how to get them without executing actually at once.
+
+```c++
+static string encalve_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrenclave.dat";
+static string signer_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrsigner.dat";
+```
 
 bulid
 ```
