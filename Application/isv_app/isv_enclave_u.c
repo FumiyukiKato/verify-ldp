@@ -35,14 +35,15 @@ typedef struct ms_verify_secret_data_t {
 typedef struct ms_random_response_t {
 	sgx_status_t ms_retval;
 	sgx_ra_context_t ms_context;
-	uint8_t* ms_p_secret;
-	uint32_t ms_secret_size;
-	uint8_t* ms_gcm_mac;
-	uint32_t ms_max_verification_length;
-	uint8_t* ms_p_ret;
-	sgx_ec_key_128bit_t* ms_sk_key;
+	uint8_t* ms_data;
+	uint32_t ms_data_size;
+	uint8_t* ms_p_dst;
+	const uint8_t* ms_aes_gcm_iv;
+	uint32_t ms_aes_gcm_iv_len;
+	const uint8_t* ms_p_add;
+	uint32_t ms_add_len;
 	double ms_epsilon;
-	uint8_t* ms_response_data;
+	uint8_t* ms_gcm_mac;
 } ms_random_response_t;
 
 typedef struct ms_sgx_ra_get_ga_t {
@@ -127,19 +128,20 @@ sgx_status_t verify_secret_data(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_
 	return status;
 }
 
-sgx_status_t random_response(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_ra_context_t context, uint8_t* p_secret, uint32_t secret_size, uint8_t* gcm_mac, uint32_t max_verification_length, uint8_t* p_ret, sgx_ec_key_128bit_t* sk_key, double epsilon, uint8_t* response_data)
+sgx_status_t random_response(sgx_enclave_id_t eid, sgx_status_t* retval, sgx_ra_context_t context, uint8_t* data, uint32_t data_size, uint8_t* p_dst, const uint8_t* aes_gcm_iv, uint32_t aes_gcm_iv_len, const uint8_t* p_add, uint32_t add_len, double epsilon, uint8_t* gcm_mac)
 {
 	sgx_status_t status;
 	ms_random_response_t ms;
 	ms.ms_context = context;
-	ms.ms_p_secret = p_secret;
-	ms.ms_secret_size = secret_size;
-	ms.ms_gcm_mac = gcm_mac;
-	ms.ms_max_verification_length = max_verification_length;
-	ms.ms_p_ret = p_ret;
-	ms.ms_sk_key = sk_key;
+	ms.ms_data = data;
+	ms.ms_data_size = data_size;
+	ms.ms_p_dst = p_dst;
+	ms.ms_aes_gcm_iv = aes_gcm_iv;
+	ms.ms_aes_gcm_iv_len = aes_gcm_iv_len;
+	ms.ms_p_add = p_add;
+	ms.ms_add_len = add_len;
 	ms.ms_epsilon = epsilon;
-	ms.ms_response_data = response_data;
+	ms.ms_gcm_mac = gcm_mac;
 	status = sgx_ecall(eid, 4, &ocall_table_isv_enclave, &ms);
 	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
 	return status;

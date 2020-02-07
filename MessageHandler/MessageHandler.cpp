@@ -3,7 +3,7 @@
 using namespace util;
 
 MessageHandler::MessageHandler(int port) {
-    this->nm = NetworkManagerServer::getInstance(port);
+    this->nm = NetworkManagerClient::getInstance(Settings::rh_port, Settings::rh_host);
 }
 
 MessageHandler::~MessageHandler() {
@@ -287,31 +287,7 @@ void MessageHandler::assembleAttestationMSG(Messages::AttestationMessage msg, ra
     *pp_att_msg = p_att_result_msg_full;
 }
 
-void MessageHandler::assembleSecretMessage(Messages::SecretMessage msg, private_data_msg_t **pp_sec_msg) {
-    private_data_msg_t *p_private_data_msg = NULL;
 
-    int total_size = msg.size() + msg.result_size();
-    p_private_data_msg = (private_data_msg_t *)malloc(total_size);
-    memset(p_private_data_msg, 0, total_size);
-
-    p_private_data_msg->secret.payload_size = msg.result_size();
-
-    for (int i=0; i<12; i++)
-        p_private_data_msg->secret.reserved[i] = msg.reserved(i);
-
-    for (int i=0; i<SAMPLE_SP_TAG_SIZE; i++)
-        p_private_data_msg->secret.payload_tag[i] = msg.payload_tag(i);
-
-    for (int i=0; i<msg.result_size(); i++) {
-        p_private_data_msg->secret.payload[i] = (uint8_t)msg.encrypted_content(i);
-    }
-
-    p_private_data_msg->open_data.privacy_parameter = msg.privacy_parameter();
-    Log("Secret Message pp direct %lf", msg.privacy_parameter());
-    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
-
-    *pp_sec_msg = p_private_data_msg;
-}
 
 string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg) {
     Log("Received Attestation result");
@@ -366,68 +342,82 @@ string MessageHandler::handleAttestationResult(Messages::AttestationMessage msg)
         Log("Send attestation okay");
     }
 
-    Messages::InitialMessage ret_msg;
-    ret_msg.set_type(RA_APP_ATT_OK);
-    ret_msg.set_size(0);
+    /* random response */
 
-    return nm->serialize(ret_msg);
-}
+    // read private data from file
+    char *data_buf_char;
+    Log("read private data from %s", Settings::client_private_data_path);
+    ReadFileToBuffer(Settings::client_private_data_path, &data_buf_char);
+    uint8_t data_buf_uint = stoi(string(data_buf_char));
+    uint32_t data_buf_uint_size = sizeof(data_buf_uint);
 
-string MessageHandler::handleRandomResponse(Messages::SecretMessage msg) {
-    Log("Received secret data");
-
-    private_data_msg_t *p_private_data_msg = NULL;
-    this->assembleSecretMessage(msg, &p_private_data_msg);
-    sgx_status_t status;
-    sgx_status_t ret;
-
-    sgx_ec_key_128bit_t sk_key;
-    uint8_t response_data;
-    for (int i=0; i<p_private_data_msg->secret.payload_size; i++)
-        Log("secret payload: %u", unsigned(p_private_data_msg->secret.payload[i]));
-    Log("aes gcm mac is: %s", ByteArrayToNoHexString(p_private_data_msg->secret.payload_tag, 16));
-    Log("Secret Message pp %lf", p_private_data_msg->open_data.privacy_parameter);
-
-    ret = random_response(this->enclave->getID(),
-                                &status,
-                                this->enclave->getContext(),
-                                p_private_data_msg->secret.payload, // cipher text
-                                p_private_data_msg->secret.payload_size, // length of text to be decrypted
-                                p_private_data_msg->secret.payload_tag, // mac
-                                MAX_VERIFICATION_RESULT,
-                                NULL,
-                                &sk_key,
-                                p_private_data_msg->open_data.privacy_parameter,
-                                &response_data);
-
-    if (SGX_SUCCESS != ret) {
-        Log("Error, random_response is failed1", log::error);
-        print_error_message(ret);
-        return "";
-    } else if (SGX_SUCCESS != status) {
-        Log("Error, random_response is failed2", log::error);
-        print_error_message(status);
-        return "";
-    } else {
-        Log("Private Random Response has done.");
-    }
-
-    // Get data
-    Log("Peturbation is done");
+    // read privacy parameter from file
+    char *privacy_buf_char;
+    Log("read privacy parameter from %s", Settings::client_privacy_path);
+    ReadFileToBuffer(Settings::client_privacy_path, &privacy_buf_char);
+    double privacy_buf_double = stod(string(privacy_buf_char));
 
     Log("Client data information:");
-    Log("\tprivacy parameter: %lf", p_private_data_msg->open_data.privacy_parameter);
-    Log("\trandomized data: %u", unsigned(response_data));
+    Log("\tprivacy parameter: %lf", privacy_buf_double);
+    Log("\traw data: %u", unsigned(data_buf_uint));
 
-    SafeFree(p_private_data_msg);
+    uint8_t encrypted_data[data_buf_uint];
 
-    Messages::InitialMessage ret_msg;
-    ret_msg.set_type(RANDOM_RESPONSE_OK);
-    ret_msg.set_size(0);
+    uint8_t aes_gcm_iv[ISV_IV_SIZE] = {0}; // initialized vector
+    uint8_t gcm_tag[ISV_GCM_TAG_SIZE];
+    uint8_t reserved[12];
 
-    return nm->serialize(ret_msg);
+    ret = random_response(this->enclave->getID(),
+                            &status,
+                            this->enclave->getContext(),
+                            &data_buf_uint, // plain text
+                            data_buf_uint_size, // length of text
+                            encrypted_data, // randomized
+                            aes_gcm_iv,
+                            ISV_IV_SIZE,
+                            NULL,
+                            0,
+                            privacy_buf_double,
+                            gcm_tag);
+
+    if (SGX_SUCCESS != ret) {
+        Log("Error, encryption fail", log::error);
+        print_error_message(ret);
+        return "";
+    }
+
+    /* Log */
+    for (int i=0; i<data_buf_uint_size; i++)
+        Log("encrypted payload: %u", unsigned(encrypted_data[i]));
+    Log("aes gcm mac is: %s", ByteArrayToNoHexString(gcm_tag, 16));
+
+
+    /* set Secret Message */
+    Messages::SecretMessage sec_msg;
+    sec_msg.set_type(RA_APP_ATT_OK);
+
+    uint32_t msg_size = sizeof(private_data_msg_t);
+    sec_msg.set_size(msg_size);
+
+    // encrypted private data
+    for (int i=0; i<data_buf_uint_size; i++)
+        sec_msg.add_encrypted_content(encrypted_data[i]);
+
+    // plain text size
+    sec_msg.set_result_size(data_buf_uint_size);
+
+    for (int i=0; i<12; i++)
+        sec_msg.add_reserved(reserved[i]);
+
+    // mac of aesgcm
+    for (int i=0; i<ISV_GCM_TAG_SIZE; i++)
+        sec_msg.add_payload_tag(gcm_tag[i]);
+
+    // priavacy parameter to be opened
+    sec_msg.set_privacy_parameter(privacy_buf_double);
+
+    return nm->serialize(sec_msg);
 }
-
 
 
 string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
@@ -440,7 +430,6 @@ string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
             Log("Error, call enclave_init_ra fail", log::error);
         } else {
             Log("Call enclave_init_ra success");
-            Log("Sending msg1 to remote attestation service provider. Expecting msg2 back");
 
             auto ret = this->generateMSG1();
 
@@ -451,6 +440,7 @@ string MessageHandler::handleMSG0(Messages::MessageMsg0 msg) {
         Log("MSG0 response status was not OK", log::error);
     }
 
+    Log("Sending msg1 to remote attestation service provider. Expecting msg2 back");
     return "";
 }
 
@@ -469,64 +459,73 @@ string MessageHandler::createInitMsg(int type, string msg) {
     return nm->serialize(init_msg);
 }
 
+string MessageHandler::prepareVerificationRequest() {
+    Log("Initial request for sending data");
+
+    Messages::InitialMessage msg;
+    msg.set_type(INIT_REQUEST);
+
+    return nm->serialize(msg);
+}
+
 
 vector<string> MessageHandler::incomingHandler(string v, int type) {
     vector<string> res;
-    string s;
-    bool ret;
+    if (!v.empty()) {
+        string s;
+        bool ret;
 
-    switch (type) {
-    case RA_VERIFICATION: {	//Verification request
-        Messages::InitialMessage init_msg;
-        ret = init_msg.ParseFromString(v);
-        if (ret && init_msg.type() == RA_VERIFICATION) {
-            s = this->handleVerification();
-            res.push_back(to_string(RA_MSG0));
+        switch (type) {
+        case RA_VERIFICATION: {	//Verification request
+            Messages::InitialMessage init_msg;
+            ret = init_msg.ParseFromString(v);
+            if (ret && init_msg.type() == RA_VERIFICATION) {
+                s = this->handleVerification();
+                res.push_back(to_string(RA_MSG0));
+            }
         }
-    }
-    break;
-    case RA_MSG0: {		//Reply to MSG0
-        Messages::MessageMsg0 msg0;
-        ret = msg0.ParseFromString(v);
-        if (ret && (msg0.type() == RA_MSG0)) {
-            s = this->handleMSG0(msg0);
-            res.push_back(to_string(RA_MSG1));
-        }
-    }
-    break;
-    case RA_MSG2: {		//MSG2
-        Messages::MessageMSG2 msg2;
-        ret = msg2.ParseFromString(v);
-        if (ret && (msg2.type() == RA_MSG2)) {
-            s = this->handleMSG2(msg2);
-            res.push_back(to_string(RA_MSG3));
-        }
-    }
-    break;
-    case RA_ATT_RESULT: {	//Reply to MSG3
-        Messages::AttestationMessage att_msg;
-        ret = att_msg.ParseFromString(v);
-        if (ret && att_msg.type() == RA_ATT_RESULT) {
-            s = this->handleAttestationResult(att_msg);
-            res.push_back(to_string(RA_APP_ATT_OK));
-        }
-    }
-    break;
-    case RANDOM_RESPONSE: {	//Execute Random Response
-        Messages::SecretMessage sec_msg;
-        ret = sec_msg.ParseFromString(v);
-        if (ret && sec_msg.type() == RANDOM_RESPONSE) {
-            s = this->handleRandomResponse(sec_msg);
-            res.push_back(to_string(RANDOM_RESPONSE_OK));
-        }
-    }
-    break;
-    default:
-        Log("Unknown type: %d", type, log::error);
         break;
-    }
+        case RA_MSG0: {		//Reply to MSG0
+            Messages::MessageMsg0 msg0;
+            ret = msg0.ParseFromString(v);
+            if (ret && (msg0.type() == RA_MSG0)) {
+                s = this->handleMSG0(msg0);
+                res.push_back(to_string(RA_MSG1));
+            }
+        }
+        break;
+        case RA_MSG2: {		//MSG2
+            Messages::MessageMSG2 msg2;
+            ret = msg2.ParseFromString(v);
+            if (ret && (msg2.type() == RA_MSG2)) {
+                s = this->handleMSG2(msg2);
+                res.push_back(to_string(RA_MSG3));
+            }
+        }
+        break;
+        case RA_ATT_RESULT: {	//Reply to MSG3
+            Messages::AttestationMessage att_msg;
+            ret = att_msg.ParseFromString(v);
+            if (ret && att_msg.type() == RA_ATT_RESULT) {
+                s = this->handleAttestationResult(att_msg);
+                res.push_back(to_string(RA_APP_ATT_OK));
+            }
+        }
+        break;
+        case FINISH_SESSION: {
+            Log(v);
+        }
+        break;
+        default:
+            Log("Unknown type: %d", type, log::error);
+            break;
+        }
 
-    res.push_back(s);
+        res.push_back(s);
+    } else { 	//after handshake
+        res.push_back(to_string(INIT_REQUEST));
+        res.push_back(this->prepareVerificationRequest());
+    }
 
     return res;
 }
