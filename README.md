@@ -4,15 +4,17 @@ So, you should check some dependencies, but the repository maybe does not suppor
 
 ## description
 
-Overview, Client(Service Provider) sends their private data to Server(ISV) on TLS session.
+Overview, Client(Service Provider or ISV) sends their private data to Server(Service Provider or ISV) on TLS session.
 
 Client verify Server's runtime and program integirity using [remote attestation](https://software.intel.com/en-us/articles/code-sample-intel-software-guard-extensions-remote-attestation-end-to-end-example).
 
-Client send encrypted private data to Server, and in SGX of Server side, data is perturbed with Randomized Response.
+**branch: `master` and `server-is-sp` is mode where Client is ISV with TEE and Server is SP without TEE.** 
 
-**That is more important model I think.**
+Client send encrypted private data in SGX to Server, data is perturbed with Randomized Response in TEE at client side.
 
-**And branch: `server-is-sp` is mode where Client is ISV with TEE and Server is SP without TEE.** 
+**And branch: `client-is-sp` is mode where Server is ISV with TEE and Client is SP without TEE.** 
+
+Client send private data to Server through secure channel with SGX at server side, data is perturbed with Randomized Response in SGX at server side.
 
 ## execution
 Supporting IAS v3 API and v2.8 sgxsdk
