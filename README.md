@@ -9,6 +9,8 @@ Client verify Server's runtime and program integirity using [remote attestation]
 
 Client send encrypted private data to Server, and in SGX of Server side, data is perturbed with Randomized Response.
 
+**And branch: `server-is-sp` is mode where Client is ISV with TEE and Server is SP without TEE.** That is more important model I think.
+
 ## execution
 Supporting IAS v3 API and v2.8 sgxsdk
 I use my fork sdk https://github.com/FumiyukiKato/linux-sgx
