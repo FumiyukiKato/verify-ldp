@@ -31,6 +31,14 @@ static string primary_key   = std::getenv("AS_PRIMARY_KEY"); // IAS api key
 static string secondary_key = std::getenv("AS_SECONDARY_KEY");
 ```
 
+You have to set mrenclave value of `sgx_report_t` and mrsigner value because they should be verified.
+
+But I dont know how to get them without executing actually at once.
+
+```c++
+static string encalve_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrenclave.dat";
+static string signer_measurement_path = "/home/fumiyuki/workspace/verify-ldp/mrsigner.dat";
+```
 
 bulid
 ```
