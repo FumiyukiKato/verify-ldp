@@ -1,5 +1,5 @@
 # verify-ldp
-This repository is based on this briliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
+This repository is based on this brilliant remote attestation sample code https://github.com/svartkanin/linux-sgx-remoteattestation.
 So, you should check some dependencies, but the repository maybe does not support SDK and API of latest version.
 
 ## description
